@@ -85,7 +85,7 @@ if [ $NETISO_V4 -eq 1 ] || [ $NETISO_V6 -eq 1 ]; then
     cat >> /tmp/eth2.cfg <<EOF_CAT
 network_config:
     - type: interface
-      name: eth2
+      name: eth1
       use_dhcp: false
       addresses:
         - ip_netmask: 10.0.0.1/24

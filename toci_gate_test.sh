@@ -1,14 +1,32 @@
 #!/usr/bin/env bash
 set -eux
 # Mirrors
-# NOTE(pabelanger): We have access to AFS mirrors, lets use them.
-source /etc/nodepool/provider
-
 source $(dirname $0)/scripts/common_vars.bash
-NODEPOOL_MIRROR_HOST=${NODEPOOL_MIRROR_HOST:-mirror.$NODEPOOL_REGION.$NODEPOOL_CLOUD.openstack.org}
-NODEPOOL_MIRROR_HOST=$(echo $NODEPOOL_MIRROR_HOST|tr '[:upper:]' '[:lower:]')
-export CENTOS_MIRROR=http://$NODEPOOL_MIRROR_HOST/centos
-export EPEL_MIRROR=http://$NODEPOOL_MIRROR_HOST/epel
+if [[ -e /etc/nodepool/provider ]]; then
+    # NOTE(pabelanger): We have access to AFS mirrors, lets use them.
+    source /etc/nodepool/provider
+
+    NODEPOOL_MIRROR_HOST=${NODEPOOL_MIRROR_HOST:-mirror.$NODEPOOL_REGION.$NODEPOOL_CLOUD.openstack.org}
+    NODEPOOL_MIRROR_HOST=$(echo $NODEPOOL_MIRROR_HOST|tr '[:upper:]' '[:lower:]')
+    export CENTOS_MIRROR=http://$NODEPOOL_MIRROR_HOST/centos
+    export EPEL_MIRROR=http://$NODEPOOL_MIRROR_HOST/epel
+else
+    # NOTE(sshnaidm): If working on dev environments:
+    # Mirrors
+    # We don't seem to have a CentOS mirror in the data center, so we need to pick
+    # one that has reasonable connectivity to our rack.  Provide a few options in
+    # case one of them goes down.
+    for mirror in http://mirror.hmc.edu/centos/ http://mirrors.usc.edu/pub/linux/distributions/centos/ http://mirror.centos.org/centos/; do
+        if curl -L -f -m 10 $mirror > /dev/null 2>&1; then
+            export CENTOS_MIRROR=$mirror
+            break
+        fi
+    done
+    # This EPEL Mirror is in the same data center as our CI rack
+    export EPEL_MIRROR=http://dl.fedoraproject.org/pub/epel
+    # NOTE(pabelanger): Once we bring AFS mirrors online, we no longer need to do this.
+    sudo sed -i -e "s|^#baseurl=http://mirror.centos.org/centos/|baseurl=$CENTOS_MIRROR|;/^mirrorlist/d" /etc/yum.repos.d/CentOS-Base.repo
+fi
 
 # FIXME(derekh) This needs to be removed
 # We pin this in tripleo-puppet-elements, but the stuff in toci_* overrides it
@@ -17,7 +35,7 @@ export EPEL_MIRROR=http://$NODEPOOL_MIRROR_HOST/epel
 # tripleo puppet-ceph ci
 rm -rf $TRIPLEO_ROOT/puppet-ceph
 
-if [ $NODEPOOL_CLOUD == 'tripleo-test-cloud-rh1' ]; then
+if [ ${NODEPOOL_CLOUD:-} == 'tripleo-test-cloud-rh1' ]; then
     source $(dirname $0)/scripts/rh2.env
 
     # In order to save space remove the cached git repositories, at this point in
