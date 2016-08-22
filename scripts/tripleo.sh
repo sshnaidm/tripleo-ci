@@ -419,14 +419,35 @@ function undercloud {
     else
         log "~/undercloud.conf  already exists, not overwriting"
     fi
-
+    cp ~/undercloud.conf ~/undercloud.conf.original
     # Hostname check, add to /etc/hosts if needed
     if ! grep -E "^127.0.0.1\s*$HOSTNAME" /etc/hosts; then
         sudo /bin/bash -c "echo \"127.0.0.1 $HOSTNAME\" >> /etc/hosts"
     fi
 
-    openstack undercloud install
+#    openstack undercloud install
+sudo yum -y reinstall python-requests
+grep 127.0.0.2 /etc/hosts || echo "127.0.0.2  localhost.localdomain" | sudo tee -a /etc/hosts
+export OPT_WORKDIR=${HOME}/.quickstart/
+mkdir -p $OPT_WORKDIR ||:
+cat<<EOF >$OPT_WORKDIR/hosts
+[virthost]
+127.0.0.2
 
+[undercloud]
+127.0.0.2
+EOF
+[[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone https://github.com/openstack/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
+
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
+        --retain-inventory \
+        --working-dir $OPT_WORKDIR \
+        -t undercloud-scripts,undercloud-install,overcloud-scripts \
+        -T none \
+	    -e working_dir=${HOME} \
+	    -R ${STABLE_RELEASE:-"master"} \
+        127.0.0.2
     log "Undercloud install - DONE."
 
 }
