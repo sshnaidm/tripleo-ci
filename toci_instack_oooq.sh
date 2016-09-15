@@ -51,7 +51,7 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
 
 prepare_images_oooq
 
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --no-clone \
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
         -t 'undercloud-post-install,overcloud-scripts' \
         -e step_introspect=False \
         -e network_isolation=True \
