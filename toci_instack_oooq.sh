@@ -44,10 +44,10 @@ env > /tmp/my_env_is_here
 echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
         -t 'undercloud-scripts,undercloud-install,overcloud-scripts' \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo dd of=/var/log/undercloud_install.txt ||:"
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
         -t 'undercloud-scripts,undercloud-install,overcloud-scripts' \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo dd of=/var/log/undercloud_install.txt ||:
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
 collect_oooq_logs
