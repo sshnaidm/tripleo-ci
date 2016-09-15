@@ -49,14 +49,7 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
 
-wget http://66.187.229.139/builds/current-tripleo/ipa_images.tar
-wget http://66.187.229.139/builds/current-tripleo/overcloud-full.tar
-
-tar -xvf overcloud-full.tar
-tar -xvf ipa_images.tar
-update_image ironic-python-agent.initramfs
-update_image overcloud-full.qcow2
-rm -f overcloud-full.tar ipa_images.tar
+prepare_images_oooq
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --no-clone \
         -t 'undercloud-post-install,overcloud-scripts' \
