@@ -39,11 +39,6 @@ $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 prepare_oooq
 yum install -y python-tripleoclient
 
-if [ ! -f ~/undercloud.conf ]; then
-    cp -b -f $UNDERCLOUD_CONF ~/undercloud.conf
-else
-    echo "~/undercloud.conf  already exists, not overwriting"
-fi
 echo "See env in /tmp/my_env_is_here"
 env > /tmp/my_env_is_here
 echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
