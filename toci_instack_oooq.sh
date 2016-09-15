@@ -37,7 +37,7 @@ cp -f $TE_DATAFILE ~/instackenv.json
 $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 
 prepare_oooq
-yum install -y python-tripleoclient
+sudo yum install -y python-tripleoclient
 
 echo "See env in /tmp/my_env_is_here"
 env > /tmp/my_env_is_here
