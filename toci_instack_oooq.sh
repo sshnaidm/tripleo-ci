@@ -27,7 +27,7 @@ sudo yum remove -y puppet hiera puppetlabs-release rdo-release
 sudo rm -rf /etc/puppet /etc/hiera.yaml
 sudo yum reinstall -y python-requests || sudo yum install -y python-requests
 
-trap "[ \$? != 0 ] && echo ERROR DURING PREVIOUS COMMAND ^^^ && echo 'See postci.txt in the logs directory for debugging details'; postci 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' > $WORKSPACE/logs/postci.log 2>&1" EXIT
+trap "[ \$? != 0 ] && echo ERROR DURING PREVIOUS COMMAND ^^^ && echo 'See postci.txt in the logs directory for debugging details'; collect_oooq_logs 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' > $WORKSPACE/logs/postci.log 2>&1" EXIT
 
 # Install our test cert so SSL tests work
 sudo cp $TRIPLEO_ROOT/tripleo-ci/test-environments/overcloud-cacert.pem /etc/pki/ca-trust/source/anchors/
@@ -42,13 +42,24 @@ sudo yum install -y python-tripleoclient
 echo "See env in /tmp/my_env_is_here"
 env > /tmp/my_env_is_here
 
-echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap \
-        -t 'undercloud-scripts,undercloud-install,overcloud-scripts' \
-        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
-
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
-        -t 'undercloud-scripts,undercloud-install,overcloud-scripts' \
+        -t 'undercloud-scripts,undercloud-install' \
+        --requirements quickstart-extras-requirements.txt \
+        --playbook quickstart-extras.yml \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
+
+wget http://66.187.229.139/builds/current-tripleo/ipa_images.tar
+wget http://66.187.229.139/builds/current-tripleo/overcloud-full.tar
+
+tar -xvf overcloud-full.tar
+tar -xvf ipa_images.tar
+
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
+        -t 'undercloud-post-install,overcloud-scripts' \
+        -e step_introspect=True \
+        -e network_isolation=True \
+        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
+
 collect_oooq_logs
