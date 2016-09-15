@@ -57,8 +57,10 @@ tar -xvf ipa_images.tar
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         -t 'undercloud-post-install,overcloud-scripts' \
-        -e step_introspect=True \
+        -e step_introspect=False \
         -e network_isolation=True \
+        --requirements quickstart-extras-requirements.txt \
+        --playbook quickstart-extras.yml \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
 
