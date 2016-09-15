@@ -330,6 +330,7 @@ function prepare_oooq {
     [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone https://github.com/openstack/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
+    $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap
 }
 
 function collect_oooq_logs {
