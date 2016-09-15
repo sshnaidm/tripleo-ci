@@ -223,8 +223,9 @@ if [ -z "${TE_DATAFILE:-}" -a "$OSINFRA" = "0" ] ; then
     sudo pip install gear
     # Kill the whole job if it doesn't get a testenv in 20 minutes as it likely will timout in zuul
     ( sleep 1200 ; [ ! -e /tmp/toci.started ] && sudo kill -9 $$ ) &
-
+    echo "Executing: ./testenv-client -b $GEARDSERVER:4730 -t $TIMEOUT_SECS --envsize $(($NODECOUNT+1)) --ucinstance $UCINSTANCEID -- $TOCIRUNNER"
     ./testenv-client -b $GEARDSERVER:4730 -t $TIMEOUT_SECS --envsize $(($NODECOUNT+1)) --ucinstance $UCINSTANCEID -- $TOCIRUNNER
 else
+    echo "Executing: LEAVE_RUNNING=1 $TOCIRUNNER"
     LEAVE_RUNNING=1 $TOCIRUNNER
 fi
