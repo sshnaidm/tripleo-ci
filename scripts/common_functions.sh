@@ -333,7 +333,6 @@ function prepare_oooq {
 }
 
 function prepare_images_oooq {
-    pushd $HOME
     wget http://66.187.229.139/builds/current-tripleo/ipa_images.tar -O ipa_images.tar
     wget http://66.187.229.139/builds/current-tripleo/overcloud-full.tar -O overcloud-full.tar
 
@@ -341,8 +340,9 @@ function prepare_images_oooq {
     tar -xvf ipa_images.tar
     update_image ironic-python-agent.initramfs
     update_image overcloud-full.qcow2
+    cp ironic-python-agent.* ~/
+    cp overcloud-full.qcow2 overcloud-full.initrd overcloud-full.vmlinuz ~/
     rm -f overcloud-full.tar ipa_images.tar
-    popd
 }
 
 function collect_oooq_logs {
