@@ -54,8 +54,11 @@ wget http://66.187.229.139/builds/current-tripleo/overcloud-full.tar
 
 tar -xvf overcloud-full.tar
 tar -xvf ipa_images.tar
+update_image ironic-python-agent.initramfs
+update_image overcloud-full.qcow2
+rm -f overcloud-full.tar ipa_images.tar
 
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --no-clone \
         -t 'undercloud-post-install,overcloud-scripts' \
         -e step_introspect=False \
         -e network_isolation=True \
