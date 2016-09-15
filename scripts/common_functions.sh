@@ -332,6 +332,17 @@ function prepare_oooq {
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 }
 
+function prepare_images_oooq {
+    wget http://66.187.229.139/builds/current-tripleo/ipa_images.tar
+    wget http://66.187.229.139/builds/current-tripleo/overcloud-full.tar
+
+    tar -xvf overcloud-full.tar
+    tar -xvf ipa_images.tar
+    update_image ironic-python-agent.initramfs
+    update_image overcloud-full.qcow2
+    rm -f overcloud-full.tar ipa_images.tar
+}
+
 function collect_oooq_logs {
     cp ${HOME}/undercloud* $OOOQ_LOGS/ ||:
     tar -czf $OOOQ_LOGS/quickstart.tar.gz $OPT_WORKDIR
