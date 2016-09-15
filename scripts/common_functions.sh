@@ -318,3 +318,21 @@ function sanitize_ip_address {
         echo $ip
     fi
 }
+
+function prepare_oooq {
+    sudo yum reinstall -y python-requests
+    export OPT_WORKDIR=${WORKSPACE}/.quickstart
+    export OOOQ_LOGS=/var/log/oooq
+    export OOO_WORKDIR_LOCAL=$HOME
+    export OOOQ_DEFAULT_ARGS=" --working-dir $OPT_WORKDIR --retain-inventory -T none -e working_dir=$OOO_WORKDIR_LOCAL -R ${STABLE_RELEASE:-master}"
+    [[ ! -e $OPT_WORKDIR ]] && mkdir -p $OPT_WORKDIR && sudo chown -R ${USER} $OPT_WORKDIR
+    sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
+    [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone https://github.com/openstack/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
+    cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
+    $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
+}
+
+function collect_oooq_logs {
+    cp ${HOME}/undercloud* $OOOQ_LOGS/ ||:
+    tar -czf $OOOQ_LOGS/quickstart.tar.gz $OPT_WORKDIR
+}

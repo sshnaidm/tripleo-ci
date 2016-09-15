@@ -34,3 +34,15 @@ sudo update-ca-trust extract
 
 cp -f $TE_DATAFILE ~/instackenv.json
 
+prepare_oooq
+if [ ! -f ~/undercloud.conf ]; then
+    cp -b -f $UNDERCLOUD_CONF ~/undercloud.conf
+else
+    echo "~/undercloud.conf  already exists, not overwriting"
+fi
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
+        -t "undercloud-scripts,undercloud-install,overcloud-scripts" \
+        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo dd of=/var/log/undercloud_install.txt ||:
+
+collect_oooq_logs
