@@ -41,12 +41,13 @@ sudo yum install -y python-tripleoclient
 
 echo "See env in /tmp/my_env_is_here"
 env > /tmp/my_env_is_here
+
 echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap \
         -t 'undercloud-scripts,undercloud-install,overcloud-scripts' \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
 
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         -t 'undercloud-scripts,undercloud-install,overcloud-scripts' \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
