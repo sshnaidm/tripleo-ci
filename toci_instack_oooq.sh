@@ -34,8 +34,11 @@ sudo cp $TRIPLEO_ROOT/tripleo-ci/test-environments/overcloud-cacert.pem /etc/pki
 sudo update-ca-trust extract
 
 cp -f $TE_DATAFILE ~/instackenv.json
+$TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 
 prepare_oooq
+yum install -y python-tripleoclient
+
 if [ ! -f ~/undercloud.conf ]; then
     cp -b -f $UNDERCLOUD_CONF ~/undercloud.conf
 else
