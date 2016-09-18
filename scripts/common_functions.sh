@@ -340,8 +340,8 @@ function prepare_images_oooq {
 
     tar -xvf overcloud-full.tar
     tar -xvf ipa_images.tar
-    update_image ironic-python-agent.initramfs
-    update_image overcloud-full.qcow2
+    update_image $PWD/ironic-python-agent.initramfs
+    update_image $PWD/overcloud-full.qcow2
     cp ironic-python-agent.* ~/
     cp overcloud-full.qcow2 overcloud-full.initrd overcloud-full.vmlinuz ~/
     rm -f overcloud-full.tar ipa_images.tar
