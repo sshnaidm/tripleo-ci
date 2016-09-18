@@ -117,6 +117,8 @@ function update_image(){
             rm -rf ${IMAGE/qcow2/raw}
             ;;
         initramfs)
+            echo "sudo find . -print | sudo cpio -o -H newc | gzip > $IMAGE"
+            echo "In directory "$(pwd)
             sudo find . -print | sudo cpio -o -H newc | gzip > $IMAGE
             popd
             ;;
