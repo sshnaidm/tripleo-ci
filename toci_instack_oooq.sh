@@ -46,18 +46,21 @@ PLAYBOOK=" --playbook quickstart-extras.yml --requirements quickstart-extras-req
 OVERCLOUD_SCRIPTS=" -e extra_args='--control-scale 3 --ntp-server 0.centos.pool.ntp.org"
 OVERCLOUD_SCRIPTS=$OVERCLOUD_SCRIPTS" -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e $TRIPLEO_ROOT/tripleo-ci/test-environments/network-templates/network-environment.yaml -e $TRIPLEO_ROOT/tripleo-ci/test-environments/net-iso.yaml'"
 
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
+cmd="$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         -t 'undercloud-scripts,undercloud-install' \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
 
+echo $cmd
+$cmd
 prepare_images_oooq
 
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
+$cmd="TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh \
         -t 'undercloud-post-install,overcloud-scripts' \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
-
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
+echo $cmd
+$cmd
 collect_oooq_logs
