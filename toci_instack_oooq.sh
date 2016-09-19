@@ -41,7 +41,7 @@ sudo yum install -y python-tripleoclient
 
 echo "See env in /tmp/my_env_is_here"
 env > /tmp/my_env_is_here
-UNDERCLOUD_SCRIPTS=" -e network_isolation=True "
+UNDERCLOUD_SCRIPTS=" -e network_isolation=True -e step_introspect=False  "
 PLAYBOOK=" --playbook quickstart-extras.yml --requirements quickstart-extras-requirements.txt "
 OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
                     -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
@@ -50,6 +50,8 @@ OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/
 
 # -e extra_args='--control-scale 3 --ntp-server 0.centos.pool.ntp.org' \
 
+prepare_images_oooq
+
 echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         -t 'undercloud-scripts,undercloud-install' \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
@@ -57,21 +59,21 @@ echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
-        -t 'undercloud-scripts,undercloud-install' \
+        -t 'undercloud-scripts,undercloud-install,undercloud-post-install,overcloud-scripts,overcloud-deploy' \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
 
-prepare_images_oooq
-
-echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --retain-inventory -T none \
-        -t 'undercloud-post-install,overcloud-scripts' \
-        $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
-        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
-
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --retain-inventory -T none \
-        -t 'undercloud-post-install,overcloud-scripts' \
-        $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
-        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
+#prepare_images_oooq
+#
+#echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --retain-inventory -T none \
+#        -t 'undercloud-post-install,overcloud-scripts' \
+#        $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
+#        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_post_install.txt ||:"
+#
+#$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --retain-inventory -T none \
+#        -t 'undercloud-post-install,overcloud-scripts' \
+#        $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
+#        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_post_install.txt ||:
 
 collect_oooq_logs
