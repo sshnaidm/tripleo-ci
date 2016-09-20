@@ -41,7 +41,7 @@ sudo yum install -y python-tripleoclient
 
 echo "See env in /tmp/my_env_is_here"
 env > /tmp/my_env_is_here
-UNDERCLOUD_SCRIPTS=" -e network_isolation=True -e step_introspect=False  "
+UNDERCLOUD_SCRIPTS=" -e network_isolation=True -e step_introspect=False --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml "
 PLAYBOOK=" --playbook quickstart-extras.yml --requirements quickstart-extras-requirements.txt "
 OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
                     -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
