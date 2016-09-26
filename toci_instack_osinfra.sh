@@ -74,7 +74,9 @@ source $TRIPLEO_ROOT/tripleo-ci/deploy.env
 sudo yum -y remove puppet facter hiera
 
 # TODO: remove later, this is for live debugging
-sudo cat /etc/nodepool/*
+for i in $(ls /etc/nodepool/); do
+    cat /etc/nodepool/$i
+done
 
 if [ -s /etc/nodepool/sub_nodes ]; then
     for ip in $(cat /etc/nodepool/sub_nodes); do

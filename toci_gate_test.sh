@@ -103,7 +103,7 @@ sudo yum install -y dstat nmap-ncat #nc is for metrics
 mkdir -p "$WORKSPACE/logs"
 dstat -tcmndrylpg --top-cpu-adv --top-io-adv --nocolor | tee --append $WORKSPACE/logs/dstat.log > /dev/null &
 disown
-
+export TOCI_JOBTYPE="$TOCI_JOBTYPE-tempest"
 # Switch defaults based on the job name
 for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
     case $JOB_TYPE_PART in
@@ -161,7 +161,7 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
             ;;
         ovb)
             OVB=1
-
+            exit 0
             # The test env broker needs to know the instanceid of the this node so it can attach it to the provisioning network
             UCINSTANCEID=$(http_proxy= curl http://169.254.169.254/openstack/2015-10-15/meta_data.json | python -c 'import json, sys; print json.load(sys.stdin)["uuid"]')
             ;;
