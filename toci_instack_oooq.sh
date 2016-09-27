@@ -50,7 +50,6 @@ OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/
 
 # -e extra_args='--control-scale 3 --ntp-server 0.centos.pool.ntp.org' \
 env > /tmp/my_env_is_here
-exit 1
 prepare_images_oooq
 
 echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
@@ -60,7 +59,7 @@ echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
-        -t 'undercloud-scripts,undercloud-install' \
+        -t 'undercloud-scripts,undercloud-install,undercloud-post-install,overcloud-scripts,overcloud-deploy' \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
@@ -76,20 +75,5 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
 #        -t 'undercloud-post-install,overcloud-scripts' \
 #        $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
 #        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_post_install.txt ||:
-
-#
-#/opt/stack/new/tripleo-quickstart/quickstart.sh \
-#    -t 'undercloud-scripts,undercloud-install,undercloud-post-install,overcloud-scripts,overcloud-deploy' \
-#    -T none \
-#    --working-dir /tmp/.quickstart \
-#    --retain-inventory \
-#    -e working_dir=$HOME \
-#    --config /opt/stack/new/tripleo-quickstart/config/general_config/minimal.yml \
-#    --release master-tripleo-ci \
-#    --bootstrap \
-#    --retain-inventory \
-#    --requirements quickstart-extras-requirements.txt \
-#    --playbook quickstart-extras.yml \
-#    --extra-vars run_tempest=true 127.0.0.2  2>&1 | tee oooq.log
 
 collect_oooq_logs
