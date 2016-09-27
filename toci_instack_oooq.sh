@@ -55,6 +55,8 @@ OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/
 env > /tmp/my_env_is_here
 prepare_images_oooq
 
+pushd $TRIPLEO_ROOT/tripleo-quickstart/
+
 echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         -t all \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
@@ -69,3 +71,5 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
 
 
 collect_oooq_logs
+
+popd
