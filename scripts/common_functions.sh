@@ -329,7 +329,7 @@ function prepare_oooq {
     export OOOQ_DEFAULT_ARGS=" --working-dir $OPT_WORKDIR --retain-inventory -T none -e working_dir=$OOO_WORKDIR_LOCAL -R ${STABLE_RELEASE:-master}"
     [[ ! -e $OPT_WORKDIR ]] && mkdir -p $OPT_WORKDIR && sudo chown -R ${USER} $OPT_WORKDIR
     sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
-    [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone https://github.com/openstack/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
+    [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone -b ovb https://github.com/sshnaidm/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 }
