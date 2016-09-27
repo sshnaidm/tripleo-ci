@@ -37,6 +37,9 @@ cp -f $TE_DATAFILE ~/instackenv.json
 $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 
 prepare_oooq
+
+sed -i "s@https://github.com/redhat-openstack/ansible-role-tripleo-overcloud-prep-images.git@https://github.com/sshnaidm/ansible-role-tripleo-overcloud-prep-images.git@" $TRIPLEO_ROOT/tripleo-quickstart/quickstart-extras-requirements.txt
+
 sudo yum install -y python-tripleoclient
 
 echo "See env in /tmp/my_env_is_here"
@@ -59,23 +62,7 @@ echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:" | tee command_log
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
-        -t 'undercloud-scripts,undercloud-install' \
-        $PLAYBOOK $UNDERCLOUD_SCRIPTS \
-        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
-
-sudo ip link set dev eth1 up
-sudo ip link set dev eth1 mtu 1400
-
-echo -e "\ndhcp-option-force=26,1400" | sudo tee -a /etc/dnsmasq-ironic.conf
-sudo systemctl restart 'neutron-*'
-sudo systemctl restart openstack-ironic-conductor
-# The undercloud install is creating file in ~/.cache as root
-# change them back so we can build overcloud images
-sudo chown -R $USER ~/.cache || true
-
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
-        -t 'undercloud-post-install,overcloud-scripts,overcloud-deploy' \
+        -t 'undercloud-scripts,undercloud-install,undercloud-post-install,overcloud-scripts,overcloud-deploy' \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
