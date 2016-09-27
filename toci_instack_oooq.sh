@@ -80,16 +80,5 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
 
-#prepare_images_oooq
-#
-#echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --retain-inventory -T none \
-#        -t 'undercloud-post-install,overcloud-scripts' \
-#        $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
-#        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_post_install.txt ||:"
-#
-#$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --retain-inventory -T none \
-#        -t 'undercloud-post-install,overcloud-scripts' \
-#        $PLAYBOOK $UNDERCLOUD_SCRIPTS $OVERCLOUD_SCRIPTS \
-#        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_post_install.txt ||:
 
 collect_oooq_logs
