@@ -59,7 +59,7 @@ echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:" | tee command_log
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
-        -t 'undercloud-scripts,undercloud-install,undercloud-post-install,overcloud-scripts,overcloud-deploy' \
+        -t 'undercloud-scripts,undercloud-install' \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
