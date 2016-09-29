@@ -20,8 +20,6 @@ public_net_pool_start: 10.0.0.50
 public_net_pool_end: 10.0.0.100
 public_net_gateway: 10.0.0.1
 
-overcloud_nodes:
-
 extra_args: |
   --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
   --control-scale 3 --neutron-network-type vxlan --neutron-tunnel-types vxlan \
