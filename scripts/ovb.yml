@@ -1,0 +1,33 @@
+step_introspect: True
+
+network_isolation_type: network-isolation
+network_isolation: true
+
+step_adjust_mtu: true
+mtu: 1350
+mtu_interface:
+  - eth0
+  - eth1
+  - eth2
+
+external_interface: eth2
+external_interface_ip: 10.0.0.1
+external_interface_netmask: 255.255.255.0
+external_interface_hwaddr: fa:16:3e:79:e8:04
+
+floating_ip_cidr: 10.0.0.0/24
+public_net_pool_start: 10.0.0.50
+public_net_pool_end: 10.0.0.100
+public_net_gateway: 10.0.0.1
+
+overcloud_nodes:
+
+extra_args: " --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
+--control-scale 3 --neutron-network-type vxlan --neutron-tunnel-types vxlan \
+-e $TRIPLEO_ROOT/tripleo-ci/test-environments/network-templates/network-environment.yaml \
+-e $TRIPLEO_ROOT/tripleo-ci/test-environments/net-iso.yaml \
+-e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
+-e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+--ntp-server 0.centos.pool.ntp.org "

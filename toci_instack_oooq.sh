@@ -36,40 +36,55 @@ sudo update-ca-trust extract
 cp -f $TE_DATAFILE ~/instackenv.json
 $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 
+#cat >> /tmp/eth2.cfg <<EOF_CAT
+#network_config:
+#    - type: interface
+#      name: eth2
+#      use_dhcp: false
+#      addresses:
+#        - ip_netmask: 10.0.0.1/24
+#EOF_CAT
+#sudo os-net-config -c /tmp/eth2.cfg -v ||:
+
 prepare_oooq
 
 #sed -i "s@https://github.com/redhat-openstack/ansible-role-tripleo-overcloud-prep-images.git@https://github.com/sshnaidm/ansible-role-tripleo-overcloud-prep-images.git@" $TRIPLEO_ROOT/tripleo-quickstart/quickstart-extras-requirements.txt
 
 sudo yum install -y python-tripleoclient
 
-echo "See env in /tmp/my_env_is_here"
 
-UNDERCLOUD_SCRIPTS=" -e network_isolation=True -e step_introspect=False --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml "
+
+UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml -e @$TRIPLEO_ROOT/tripleo-ci/scripts/ovb.yml "
 PLAYBOOK=" --playbook ovb.yml --requirements quickstart-extras-requirements.txt "
 OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
                     -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
                     -e $TRIPLEO_ROOT/tripleo-ci/test-environments/network-templates/network-environment.yaml \
-                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/net-iso.yaml"
+                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/net-iso.yaml
+                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml
+                    -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
 
 # -e extra_args='--control-scale 3 --ntp-server 0.centos.pool.ntp.org' \
-env > /tmp/my_env_is_here
+
 prepare_images_oooq
 
 pushd $TRIPLEO_ROOT/tripleo-quickstart/
 
-echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap \
+echo "See env in /tmp/my_env_is_here"
+env > /tmp/my_env_is_here
+
+echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:" | tee command_log
 
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
-        -t all \
-        $PLAYBOOK $UNDERCLOUD_SCRIPTS -e step_adjust_mtu=True \
+echo "cd `pwd`"
+echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
+        -t all --skip-tags overcloud-deploy \
+        $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
 
-
-collect_oooq_logs
+#collect_oooq_logs
 
 popd
