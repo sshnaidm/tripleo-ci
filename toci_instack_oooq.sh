@@ -36,14 +36,14 @@ sudo update-ca-trust extract
 cp -f $TE_DATAFILE ~/instackenv.json
 $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 
-#cat >> /tmp/eth2.cfg <<EOF_CAT
-#network_config:
-#    - type: interface
-#      name: eth2
-#      use_dhcp: false
-#      addresses:
-#        - ip_netmask: 10.0.0.1/24
-#EOF_CAT
+cat >> /tmp/eth2.cfg <<EOF_CAT
+network_config:
+    - type: interface
+      name: eth2
+      use_dhcp: false
+      addresses:
+        - ip_netmask: 10.0.0.1/24
+EOF_CAT
 #sudo os-net-config -c /tmp/eth2.cfg -v ||:
 
 prepare_oooq
