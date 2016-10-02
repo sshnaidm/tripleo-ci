@@ -1,5 +1,4 @@
-step_introspect: True
-
+step_introspect: true
 network_isolation_type: network-isolation
 network_isolation: true
 
