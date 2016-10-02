@@ -22,10 +22,10 @@ public_net_gateway: 10.0.0.1
 extra_args: |
   --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
   --control-scale 3 --neutron-network-type vxlan --neutron-tunnel-types vxlan \
-  -e /opt/stack/new/tripleo-ci/test-environments/network-templates/network-environment.yaml \
-  -e /opt/stack/new/tripleo-ci/test-environments/net-iso.yaml \
-  -e /opt/stack/new/tripleo-ci/test-environments/worker-config.yaml \
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml \
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
   -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
   -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
   -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
-  --ntp-server 0.centos.pool.ntp.org
+  --ntp-server 0.centos.pool.ntp.org \

@@ -322,7 +322,7 @@ function sanitize_ip_address {
 }
 
 function prepare_oooq {
-    sudo yum reinstall -y python-requests
+    sudo yum reinstall -y python-requests || sudo yum install -y python-requests
     export OPT_WORKDIR=${WORKSPACE}/.quickstart
     export OOOQ_LOGS=/var/log/oooq
     export OOO_WORKDIR_LOCAL=$HOME
@@ -331,6 +331,7 @@ function prepare_oooq {
     sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
     [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone -b ovb https://github.com/sshnaidm/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
+    cp $TRIPLEO_ROOT/ovb/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 }
 
@@ -348,6 +349,8 @@ function prepare_images_oooq {
 }
 
 function collect_oooq_logs {
-    cp ${HOME}/undercloud* $OOOQ_LOGS/ ||:
+    cp ${HOME}/*.sh $OOOQ_LOGS/ ||:
+    cp ${HOME}/*.log $OOOQ_LOGS/ ||:
+    sudo cp /var/log/quickstart_install.txt $OOOQ_LOGS/ ||:
     tar -czf $OOOQ_LOGS/quickstart.tar.gz $OPT_WORKDIR
 }

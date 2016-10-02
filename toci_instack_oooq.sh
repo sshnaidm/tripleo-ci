@@ -7,7 +7,7 @@ touch /tmp/toci.started
 export CURRENT_DIR=$(dirname ${BASH_SOURCE[0]:-$0})
 export TRIPLEO_CI_DIR=$CURRENT_DIR/../
 
-source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_vars.bash
+#source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_vars.bash
 source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_functions.sh
 #source $TRIPLEO_CI_DIR/tripleo-ci/scripts/metrics.bash
 
@@ -16,16 +16,14 @@ mkdir -p $WORKSPACE/logs
 hostname | sudo dd of=/etc/hostname
 echo "127.0.0.1 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts
 echo "127.0.0.2 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts
-
-echo | sudo tee -a ~root/.ssh/authorized_keys | sudo tee -a ~/.ssh/authorized_keys
-if [ ! -e /home/$USER/.ssh/id_rsa.pub ] ; then
-    ssh-keygen -N "" -f /home/$USER/.ssh/id_rsa
+echo | sudo tee -a /root/.ssh/authorized_keys | tee -a ~/.ssh/authorized_keys
+if [ ! -e ${HOME}/.ssh/id_rsa.pub ] ; then
+    ssh-keygen -N "" -f ${HOME}/.ssh/id_rsa
 fi
-cat ~/.ssh/id_rsa.pub | sudo tee -a ~root/.ssh/authorized_keys | sudo tee -a ~/.ssh/authorized_keys
+cat ~/.ssh/id_rsa.pub | sudo tee -a /root/.ssh/authorized_keys | tee -a ~/.ssh/authorized_keys
 
-sudo yum remove -y puppet hiera puppetlabs-release rdo-release
-sudo rm -rf /etc/puppet /etc/hiera.yaml
-sudo yum reinstall -y python-requests || sudo yum install -y python-requests
+#sudo yum remove -y puppet hiera puppetlabs-release rdo-release
+#sudo rm -rf /etc/puppet /etc/hiera.yaml
 
 trap "[ \$? != 0 ] && echo ERROR DURING PREVIOUS COMMAND ^^^ && echo 'See postci.txt in the logs directory for debugging details'; collect_oooq_logs 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' > $WORKSPACE/logs/postci.log 2>&1" EXIT
 
@@ -36,32 +34,16 @@ sudo update-ca-trust extract
 cp -f $TE_DATAFILE ~/instackenv.json
 $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 
-cat >> /tmp/eth2.cfg <<EOF_CAT
-network_config:
-    - type: interface
-      name: eth2
-      use_dhcp: false
-      addresses:
-        - ip_netmask: 10.0.0.1/24
-EOF_CAT
-#sudo os-net-config -c /tmp/eth2.cfg -v ||:
-
 prepare_oooq
 
-#sed -i "s@https://github.com/redhat-openstack/ansible-role-tripleo-overcloud-prep-images.git@https://github.com/sshnaidm/ansible-role-tripleo-overcloud-prep-images.git@" $TRIPLEO_ROOT/tripleo-quickstart/quickstart-extras-requirements.txt
-
-sudo yum install -y python-tripleoclient
-
-
-
-UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml -e @$TRIPLEO_ROOT/tripleo-ci/scripts/ovb.yml "
+UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml -e @$TRIPLEO_ROOT/tripleo-ci/scripts/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
 PLAYBOOK=" --playbook ovb.yml --requirements quickstart-extras-requirements.txt "
-OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
-                    -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
-                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/network-templates/network-environment.yaml \
-                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/net-iso.yaml
-                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml
-                    -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
+#OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
+#                    -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+#                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/network-templates/network-environment.yaml \
+#                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/net-iso.yaml
+#                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml
+#                    -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
 
 # -e extra_args='--control-scale 3 --ntp-server 0.centos.pool.ntp.org' \
 
@@ -79,12 +61,12 @@ echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:" | tee command_log
 
 echo "cd `pwd`"
-echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all --skip-tags overcloud-deploy \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:"
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.txt ||:
 
-#collect_oooq_logs
+collect_oooq_logs
 
 popd

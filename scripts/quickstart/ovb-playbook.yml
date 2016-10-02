@@ -1,0 +1,120 @@
+---
+- name: Add the undercloud node to the generated inventory
+  hosts: localhost
+  gather_facts: yes
+  tags:
+    - undercloud-scripts
+  roles:
+    - tripleo-inventory
+
+- include: tripleo-ci-setup.yml
+
+# Deploy the undercloud
+- name:  Install undercloud
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - tripleo/undercloud
+
+# Prepare eth2 interface
+- name: Prepare eth2 interface
+  hosts: undercloud
+  gather_facts: no
+  tasks:
+    - name: Delete /tmp/eth2.cfg file
+      file: dest=/tmp/eth2.cfg state=absent
+    - name: Create /tmp/eth2.cfg file
+      blockinfile:
+        dest: /tmp/eth2.cfg
+        content: |
+          network_config:
+            - type: interface
+              name: eth2
+              use_dhcp: false
+              addresses:
+                - ip_netmask: 10.0.0.1/24
+        create: yes
+    - name: Add eth2 interface from /tmp/eth2.cfg
+      shell: |
+        os-net-config -c /tmp/eth2.cfg -v
+      become: true
+#- name: Prepare instackenv.json
+#  hosts: undercloud
+#  gather_facts: no
+#  tasks:
+#    - name: Add profiles to instackenv.json
+#      shell: |
+#        sed -i '0,/capabilities": "boot/ s/"capabilities": "boot_option:local"/"capabilities": "profile:{{ item.flavor }},boot_option:local"/' ~/instackenv.json
+#      with_items: overcloud_nodes
+
+- name:  copy over config files
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - overcloud-prep-config
+
+- name:  Perpare the baremetal overcloud
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - overcloud-prep-baremetal
+
+# Prepare the overcloud images for deployment
+- name:  Prepare the overcloud images for deployment
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - overcloud-prep-images
+
+# Prepare the overcloud flavor configuration
+- name:  Prepare overcloud flavors
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - overcloud-prep-flavors
+
+# Prepare the undercloud networks for the overcloud deployment
+- name:  Prepare the undercloud networks for the overcloud deployment
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - overcloud-prep-network
+
+# Deploy the overcloud
+- name:  Deploy the overcloud
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - tripleo-overcloud
+
+- name: Add the overcloud nodes to the generated inventory
+  hosts: undercloud
+  gather_facts: yes
+  tags:
+    - overcloud-deploy
+  vars:
+      inventory: all
+  roles:
+    - tripleo-inventory
+
+# Check the results of the deployment, note after inventory has executed
+- name:  Check the result of the deployment
+  hosts: localhost
+  tags:
+    - overcloud-deploy
+  tasks:
+    - name: ensure the deployment result has been read into memory
+      include_vars: "{{ local_working_dir }}/overcloud_deployment_result.json"
+
+    # overcloud_deploy_result = ["failed", "passed"]
+    - name: did the deployment pass or fail?
+      debug: var=overcloud_deploy_result
+      failed_when: overcloud_deploy_result == "failed"
+
+- name:  validate the overcloud
+  hosts: undercloud
+  tags:
+    - overcloud-validate
+  gather_facts: no
+  roles:
+    - tripleo-overcloud-validate
