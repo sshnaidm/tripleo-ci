@@ -332,6 +332,8 @@ function prepare_oooq {
     [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone https://github.com/openstack/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
+    echo "" >> $TRIPLEO_ROOT/tripleo-quickstart/requirements.txt
+    echo "pycparser==2.13" >> $TRIPLEO_ROOT/tripleo-quickstart/requirements.txt
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 }
 
