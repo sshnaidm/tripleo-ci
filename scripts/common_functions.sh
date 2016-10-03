@@ -319,3 +319,44 @@ function sanitize_ip_address {
         echo $ip
     fi
 }
+
+function prepare_oooq {
+    sudo yum reinstall -y python-requests || sudo yum install -y python-requests
+    sudo yum install -y libguestfs-tools-c
+    export OPT_WORKDIR=${WORKSPACE}/.quickstart
+    export OOOQ_LOGS=${WORKSPACE}/logs/oooq
+    export OOO_WORKDIR_LOCAL=$HOME
+    export OOOQ_DEFAULT_ARGS=" --working-dir $OPT_WORKDIR --retain-inventory -T none -e working_dir=$OOO_WORKDIR_LOCAL -R ${STABLE_RELEASE:-master}"
+    [[ ! -e $OPT_WORKDIR ]] && mkdir -p $OPT_WORKDIR && sudo chown -R ${USER} $OPT_WORKDIR
+    sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
+    [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && /usr/zuul-env/bin/zuul-cloner --workspace /opt/stack/new/ https://git.openstack.org/openstack tripleo-quickstart
+    cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
+    cp $TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
+    $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
+}
+
+function get_image {
+    local img="$1"
+    http_proxy= wget -T 60 --tries=3 --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/$img -O $img || {
+        wget -T 60 --tries=3 --progress=dot:mega http://66.187.229.139/builds/current-tripleo/$img -O $img
+    }
+}
+
+
+function prepare_images_oooq {
+    get_image ipa_images.tar
+    get_image overcloud-full.tar
+    tar -xvf overcloud-full.tar
+    tar -xvf ipa_images.tar
+    update_image $PWD/ironic-python-agent.initramfs
+    update_image $PWD/overcloud-full.qcow2
+    cp ironic-python-agent.* ~/
+    cp overcloud-full.qcow2 overcloud-full.initrd overcloud-full.vmlinuz ~/
+    rm -f overcloud-full.tar ipa_images.tar
+}
+
+function collect_oooq_logs {
+    sudo cp /var/log/quickstart_*.log $OOOQ_LOGS/ || true
+    tar -czf $OOOQ_LOGS/quickstart.tar.gz $OPT_WORKDIR
+    mkdir -p $OOOQ_LOGS/collected_logs
+}
