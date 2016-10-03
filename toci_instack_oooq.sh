@@ -4,6 +4,7 @@ set -eux
 ## Signal to toci_gate_test.sh we've started
 touch /tmp/toci.started
 
+exit_value=0
 export CURRENT_DIR=$(dirname ${BASH_SOURCE[0]:-$0})
 export TRIPLEO_CI_DIR=$CURRENT_DIR/../
 
@@ -18,14 +19,18 @@ echo "127.0.0.1 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts
 echo "127.0.0.2 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts
 echo | sudo tee -a /root/.ssh/authorized_keys | tee -a ~/.ssh/authorized_keys
 if [ ! -e ${HOME}/.ssh/id_rsa.pub ] ; then
-    ssh-keygen -N "" -f ${HOME}/.ssh/id_rsa
+    if [[ -e ${HOME}/.ssh/id_rsa ]]; then
+        ssh-keygen -y -f ${HOME}/.ssh/id_rsa > ${HOME}/.ssh/id_rsa.pub
+    else
+        ssh-keygen -N "" -f ${HOME}/.ssh/id_rsa
+    fi
 fi
 cat ~/.ssh/id_rsa.pub | sudo tee -a /root/.ssh/authorized_keys | tee -a ~/.ssh/authorized_keys
 
 sudo yum remove -y puppet hiera puppetlabs-release rdo-release
 sudo rm -rf /etc/puppet /etc/hiera.yaml
 
-trap "[ \$? != 0 ] && echo ERROR DURING PREVIOUS COMMAND ^^^ && echo 'See postci.txt in the logs directory for debugging details'; collect_oooq_logs 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' > $WORKSPACE/logs/postci.log 2>&1" EXIT
+trap "exit_val=\$?; [ \$exit_val != 0 ] && echo ERROR DURING PREVIOUS COMMAND ^^^ && echo 'See postci.txt in the logs directory for debugging details'; postci \$exit_val 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' > $WORKSPACE/logs/postci.log 2>&1" EXIT
 
 # Install our test cert so SSL tests work
 sudo cp $TRIPLEO_ROOT/tripleo-ci/test-environments/overcloud-cacert.pem /etc/pki/ca-trust/source/anchors/
@@ -37,8 +42,15 @@ $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 prepare_oooq
 
 sudo yum install -y python-tripleoclient
+if [[ "$TOCI_JOBTYPE" =~ "-ha" ]]; then
+    CONFIG="ha"
+elif [[ "$TOCI_JOBTYPE" =~ "-nonha" ]]; then
+    CONFIG="minimal"
+else
+    CONFIG="minimal"
+fi
 
-UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml \
+UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/${CONFIG}.yml \
 -e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
 PLAYBOOK=" --playbook ovb-playbook.yml --requirements quickstart-extras-requirements.txt "
 
@@ -61,17 +73,21 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.log ||:
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.log || exit_value=2
 
-[[ -e ${OOO_WORKDIR_LOCAL}/overcloudrc ]] && \
-$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap \
+if [[ -e ${OOO_WORKDIR_LOCAL}/overcloudrc ]]; then
+    $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap \
         $OOOQ_DEFAULT_ARGS \
         -t all  \
         --playbook tempest.yml  \
         --extra-vars run_tempest=True  \
-        -e test_regex='.*smoke' 127.0.0.2 2>&1| sudo tee /var/log/quickstart_tempest.log ||:
-
+        -e test_regex='.*smoke' 127.0.0.2 2>&1| sudo tee /var/log/quickstart_tempest.log || exit_value=$?
+else
+    exit_value=1
+fi
 collect_oooq_logs
 
 popd
-[[ ! -e ${OOO_WORKDIR_LOCAL}/overcloudrc ]] && echo "FAILED"
+
+echo 'Run completed.'
+exit $exit_value

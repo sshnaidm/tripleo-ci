@@ -336,8 +336,8 @@ function prepare_oooq {
 }
 
 function prepare_images_oooq {
-    wget http://66.187.229.139/builds/current-tripleo/ipa_images.tar -O ipa_images.tar
-    wget http://66.187.229.139/builds/current-tripleo/overcloud-full.tar -O overcloud-full.tar
+    wget -nv http://66.187.229.139/builds/current-tripleo/ipa_images.tar -O ipa_images.tar
+    wget -nv http://66.187.229.139/builds/current-tripleo/overcloud-full.tar -O overcloud-full.tar
 
     tar -xvf overcloud-full.tar
     tar -xvf ipa_images.tar
