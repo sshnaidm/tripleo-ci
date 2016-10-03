@@ -39,8 +39,8 @@ prepare_oooq
 sudo yum install -y python-tripleoclient
 
 UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml \
--e @$TRIPLEO_ROOT/tripleo-ci/scripts/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
-PLAYBOOK=" --playbook ovb.yml --requirements quickstart-extras-requirements.txt "
+-e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
+PLAYBOOK=" --playbook ovb-playbook.yml --requirements quickstart-extras-requirements.txt "
 
 
 prepare_images_oooq
