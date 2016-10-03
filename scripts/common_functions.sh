@@ -332,8 +332,6 @@ function prepare_oooq {
     [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone https://github.com/openstack/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
-    echo "" >> $TRIPLEO_ROOT/tripleo-quickstart/requirements.txt
-    echo "pycparser==2.13" >> $TRIPLEO_ROOT/tripleo-quickstart/requirements.txt
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 }
 
@@ -351,8 +349,8 @@ function prepare_images_oooq {
 }
 
 function collect_oooq_logs {
-    cp ${HOME}/*.sh $OOOQ_LOGS/ ||:
-    cp ${HOME}/*.log $OOOQ_LOGS/ ||:
-    sudo cp /var/log/quickstart_install.txt $OOOQ_LOGS/ ||:
+    cp ${HOME}/*.{sh,log} $OOOQ_LOGS/ ||:
+    cp ${HOME}/tempest/*.{sh,log} $OOOQ_LOGS/ ||:
+    sudo cp /var/log/quickstart_*.log $OOOQ_LOGS/ ||:
     tar -czf $OOOQ_LOGS/quickstart.tar.gz $OPT_WORKDIR
 }
