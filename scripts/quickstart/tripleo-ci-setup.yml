@@ -3,15 +3,17 @@
   hosts: undercloud
   gather_facts: no
   tasks:
-    - name: Remove old puppet and hiera
-      file: path='{{ item }}' state=absent
-      with_items:
-        - /etc/puppet
-        - /etc/hiera.yaml
-    - name:
-      yum: name='{{ item }}' state=absent
-      with_items:
-        - puppet
-        - hiera
-        - puppetlabs-release
-        - rdo-release
+    - block:
+        - name: Remove old puppet and hiera
+          file: path='{{ item }}' state=absent
+          with_items:
+            - /etc/puppet
+            - /etc/hiera.yaml
+        - name:
+          yum: name='{{ item }}' state=absent
+          with_items:
+            - puppet
+            - hiera
+            - puppetlabs-release
+            - rdo-release
+      become: true
