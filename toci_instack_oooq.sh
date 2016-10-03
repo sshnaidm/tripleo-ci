@@ -61,8 +61,15 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
-        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.txt ||:
+        | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.log ||:
 
+
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap \
+        $OOOQ_DEFAULT_ARGS \
+        -t all  \
+        --playbook tempest.yml  \
+        --extra-vars run_tempest=True  \
+        -e test_regex='.*smoke' 127.0.0.2 2>&1| sudo tee /var/log/quickstart_tempest.log ||:
 collect_oooq_logs
 
 popd
