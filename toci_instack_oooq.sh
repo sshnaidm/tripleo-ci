@@ -22,8 +22,8 @@ if [ ! -e ${HOME}/.ssh/id_rsa.pub ] ; then
 fi
 cat ~/.ssh/id_rsa.pub | sudo tee -a /root/.ssh/authorized_keys | tee -a ~/.ssh/authorized_keys
 
-#sudo yum remove -y puppet hiera puppetlabs-release rdo-release
-#sudo rm -rf /etc/puppet /etc/hiera.yaml
+sudo yum remove -y puppet hiera puppetlabs-release rdo-release
+sudo rm -rf /etc/puppet /etc/hiera.yaml
 
 trap "[ \$? != 0 ] && echo ERROR DURING PREVIOUS COMMAND ^^^ && echo 'See postci.txt in the logs directory for debugging details'; collect_oooq_logs 2>&1 | ts '%Y-%m-%d %H:%M:%S.000 |' > $WORKSPACE/logs/postci.log 2>&1" EXIT
 
