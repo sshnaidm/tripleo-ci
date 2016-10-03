@@ -331,7 +331,7 @@ function prepare_oooq {
     sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
     [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && git clone https://github.com/openstack/tripleo-quickstart.git $TRIPLEO_ROOT/tripleo-quickstart
     cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
-    cp $TRIPLEO_ROOT/ovb/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
+    cp $TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 }
 

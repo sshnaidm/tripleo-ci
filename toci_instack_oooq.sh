@@ -7,7 +7,7 @@ touch /tmp/toci.started
 export CURRENT_DIR=$(dirname ${BASH_SOURCE[0]:-$0})
 export TRIPLEO_CI_DIR=$CURRENT_DIR/../
 
-#source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_vars.bash
+source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_vars.bash
 source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_functions.sh
 #source $TRIPLEO_CI_DIR/tripleo-ci/scripts/metrics.bash
 
@@ -36,16 +36,12 @@ $TRIPLEO_CI_DIR/tripleo-ci/scripts/tripleo.sh --repo-setup
 
 prepare_oooq
 
-UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml -e @$TRIPLEO_ROOT/tripleo-ci/scripts/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
-PLAYBOOK=" --playbook ovb.yml --requirements quickstart-extras-requirements.txt "
-#OVERCLOUD_SCRIPTS=" -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml \
-#                    -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
-#                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/network-templates/network-environment.yaml \
-#                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/net-iso.yaml
-#                    -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml
-#                    -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
+sudo yum install -y python-tripleoclient
 
-# -e extra_args='--control-scale 3 --ntp-server 0.centos.pool.ntp.org' \
+UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/ha.yml \
+-e @$TRIPLEO_ROOT/tripleo-ci/scripts/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
+PLAYBOOK=" --playbook ovb.yml --requirements quickstart-extras-requirements.txt "
+
 
 prepare_images_oooq
 
@@ -60,7 +56,7 @@ echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:" | tee command_log
 
-echo "cd `pwd`"
+
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
