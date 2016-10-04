@@ -336,9 +336,8 @@ function prepare_oooq {
 }
 
 function prepare_images_oooq {
-    wget -nv http://66.187.229.139/builds/current-tripleo/ipa_images.tar -O ipa_images.tar
-    wget -nv http://66.187.229.139/builds/current-tripleo/overcloud-full.tar -O overcloud-full.tar
-
+    wget --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/ipa_images.tar -O ipa_images.tar
+    wget --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/overcloud-full.tar -O overcloud-full.tar
     tar -xvf overcloud-full.tar
     tar -xvf ipa_images.tar
     update_image $PWD/ironic-python-agent.initramfs

@@ -54,7 +54,7 @@ if [[ "${STABLE_RELEASE}" =~ ^(liberty|mitaka)$ ]] ; then
 else
     export OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
 fi
-
+export OVERCLOUD_DEPLOY_ARGS
 
 UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/${CONFIG}.yml \
 -e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
