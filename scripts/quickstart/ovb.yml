@@ -1,4 +1,4 @@
-step_introspect: true
+step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
 network_isolation_type: network-isolation
 network_isolation: true
 
@@ -21,13 +21,15 @@ public_net_gateway: 10.0.0.1
 
 # Overcloud args
 
-flavor_args: |
-  --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal
+#flavor_args: |
+#  --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
+#
+#extra_args: |
+#  {% if overcloud_nodes|length > 3 %}--control-scale 3 {% endif %}
+#  --ntp-server 0.centos.pool.ntp.org \
+#  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml \
+#  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
+#  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
+#  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
 
-extra_args: |
-  {% if overcloud_nodes|length > 3 %}--control-scale 3 {% endif %}
-  --ntp-server 0.centos.pool.ntp.org \
-  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml \
-  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
-  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
-  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
+deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"

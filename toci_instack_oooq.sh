@@ -49,6 +49,12 @@ elif [[ "$TOCI_JOBTYPE" =~ "-nonha" ]]; then
 else
     CONFIG="minimal"
 fi
+if [[ "${STABLE_RELEASE}" =~ ^(liberty|mitaka)$ ]] ; then
+    export OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config-mitaka-and-below.yaml"
+else
+    export OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
+fi
+
 
 UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/${CONFIG}.yml \
 -e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
