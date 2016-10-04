@@ -1,0 +1,30 @@
+# Post undercloud specific tasks
+- name: Post undercloud specific tasks
+  hosts: undercloud
+  gather_facts: no
+  tasks:
+    - name: Delete /tmp/eth2.cfg file
+      file: dest=/tmp/eth2.cfg state=absent
+    - name: Create /tmp/eth2.cfg file
+      blockinfile:
+        dest: /tmp/eth2.cfg
+        content: |
+          network_config:
+            - type: interface
+              name: eth2
+              use_dhcp: false
+              addresses:
+                - ip_netmask: 10.0.0.1/24
+                - ip_netmask: 2001:db8:fd00:1000::1/64
+        create: yes
+    - name: Add eth2 interface from /tmp/eth2.cfg
+      shell: |
+        os-net-config -c /tmp/eth2.cfg -v
+      become: true
+    - name: Remove redundant hosts from instackenv.json
+      shell: |
+        cat ~/instackenv.json | jq '{"nodes": .nodes[:{{ overcloud_nodes|length }}]}' > /tmp/instackenv1.json
+        mv /tmp/instackenv1.json ~/instackenv.json
+    - name: Install ipmitool if not installed
+      yum: name=ipmitool state=latest
+      become: true

@@ -335,9 +335,18 @@ function prepare_oooq {
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 }
 
+function get_image {
+    local img="$1"
+    timeout -s 15 -k 420 300 http_proxy= wget --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/$img -O $img
+    [[ ! -e $img ]] && {
+        http_proxy= wget --progress=dot:mega http://66.187.229.139/builds/current-tripleo/$img -O $img
+    }
+}
+
+
 function prepare_images_oooq {
-    wget --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/ipa_images.tar -O ipa_images.tar
-    wget --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/overcloud-full.tar -O overcloud-full.tar
+    get_image ipa_images.tar
+    get_image overcloud-full.tar
     tar -xvf overcloud-full.tar
     tar -xvf ipa_images.tar
     update_image $PWD/ironic-python-agent.initramfs
