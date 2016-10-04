@@ -337,8 +337,8 @@ function prepare_oooq {
 
 function get_image {
     local img="$1"
-    wget -T 30 --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/$img -O $img || {
-        http_proxy= wget --progress=dot:mega http://66.187.229.139/builds/current-tripleo/$img -O $img
+    http_proxy= wget -T 60 --progress=dot:mega http://66.187.229.139/builds/current-tripleo/$img -O $img || {
+        wget -T 60 --progress=dot:mega http://$MIRRORSERVER/builds/current-tripleo/$img -O $img
     }
 }
 
