@@ -1,7 +1,4 @@
-step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
-undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
-network_isolation_type: network-isolation
-network_isolation: true
+run_tempest: false
 
 step_adjust_mtu: true
 mtu: 1350
@@ -20,18 +17,27 @@ public_net_pool_start: 10.0.0.50
 public_net_pool_end: 10.0.0.100
 public_net_gateway: 10.0.0.1
 
-# Overcloud args
 
-#flavor_args: |
-#  --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
-#
-#extra_args: |
-#  {% if overcloud_nodes|length > 3 %}--control-scale 3 {% endif %}
-#  --ntp-server 0.centos.pool.ntp.org \
-#  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml \
-#  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
-#  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
-#  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
-overcloud_nodes:
-deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
-run_tempest: false
+# Running quickstart with its own config
+network_isolation_type: network-isolation
+network_isolation: true
+enable_pacemaker: true
+deploy_timeout: 110
+flavor_args: |
+  --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
+
+extra_args: |
+  {% if overcloud_nodes|length > 3 %}--control-scale 3 {% endif %}
+  --ntp-server 0.centos.pool.ntp.org \
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml \
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
+  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
+
+# Running quickstart as tripleo-ci exactly
+#step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
+#undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
+#overcloud_nodes:
+#enable_pacemaker: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
+#deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
+#network_isolation: "{{ lookup('env','NETISO_V4') }}"
