@@ -1,4 +1,5 @@
 step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
+undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 network_isolation_type: network-isolation
 network_isolation: true
 
@@ -31,6 +32,6 @@ public_net_gateway: 10.0.0.1
 #  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
 #  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
 #  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
-
+overcloud_nodes:
 deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
 run_tempest: false
