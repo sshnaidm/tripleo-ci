@@ -85,7 +85,9 @@ export SUBNODES_SSH_KEY=
 export TEST_OVERCLOUD_DELETE=0
 export OOOQ=0
 
-export TOCI_JOBTYPE="${TOCI_JOBTYPE}-oooq"
+if [[ $TOCI_JOBTYPE =~ ovb ]]; then
+    export TOCI_JOBTYPE="${TOCI_JOBTYPE}-oooq"
+fi
 if [[ $TOCI_JOBTYPE =~ scenario ]]; then
     export PINGTEST_TEMPLATE=${PINGTEST_TEMPLATE:-"${TOCI_JOBTYPE}-pingtest"}
     MULTINODE_ENV_NAME=$TOCI_JOBTYPE

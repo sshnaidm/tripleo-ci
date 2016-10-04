@@ -23,7 +23,7 @@
       become: true
     - name: Remove redundant hosts from instackenv.json
       shell: |
-        cat ~/instackenv.json | jq '{"nodes": .nodes[:{{ overcloud_nodes|length }}]}' > /tmp/instackenv1.json
+        cat ~/instackenv.json | jq '{"nodes": .nodes[:{{ lookup('env', 'NODECOUNT') }}]}' > /tmp/instackenv1.json
         mv /tmp/instackenv1.json ~/instackenv.json
     - name: Install ipmitool if not installed
       yum: name=ipmitool state=latest
