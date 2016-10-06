@@ -5,3 +5,7 @@
   tasks:
     - name: Here comes any setup which is required for quickstart to run
       debug: msg="Here comes any setup which is required for quickstart to run"
+
+    - name: Clone the gated DLRN repos and trigger rpm injection
+      roles:
+        - tripleo-gate

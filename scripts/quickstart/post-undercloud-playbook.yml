@@ -21,14 +21,14 @@
       shell: |
         os-net-config -c /tmp/eth2.cfg -v
       become: true
-    - name: Remove redundant hosts from instackenv.json
-      shell: |
-        cat ~/instackenv.json | jq '{"nodes": .nodes[:{{ lookup('env', 'NODECOUNT') }}]}' > /tmp/instackenv1.json
-        mv /tmp/instackenv1.json ~/instackenv.json
     - name: Fix glance version to 1
       shell: |
         echo >> ~/stackrc
         echo 'export OS_IMAGE_API_VERSION=1' >> ~/stackrc
+    - name: Remove redundant hosts from instackenv.json
+      shell: |
+        cat ~/instackenv.json | jq '{"nodes": .nodes[:{{ lookup('env', 'NODECOUNT') }}]}' > /tmp/instackenv1.json
+        mv /tmp/instackenv1.json ~/instackenv.json
     - name: Install ipmitool if not installed
       yum: name=ipmitool state=latest
       become: true
