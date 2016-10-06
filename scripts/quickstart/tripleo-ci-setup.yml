@@ -2,6 +2,8 @@
 - name: Prepare environment for quickstart
   hosts: undercloud
   gather_facts: no
+  vars:
+    artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
   tasks:
     - name: Here comes any setup which is required for quickstart to run
       debug: msg="Here comes any setup which is required for quickstart to run"
