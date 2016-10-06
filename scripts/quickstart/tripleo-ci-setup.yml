@@ -2,12 +2,65 @@
 - name: Prepare environment for quickstart
   hosts: undercloud
   gather_facts: no
-  vars:
-    artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
   tasks:
     - name: Here comes any setup which is required for quickstart to run
       debug: msg="Here comes any setup which is required for quickstart to run"
 
-    - name: Clone the gated DLRN repos and trigger rpm injection
-      roles:
-        - tripleo-gate
+- name: Clone the gated DLRN repos and trigger rpm injection
+  hosts: undercloud
+  vars:
+    artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
+    ansible_user: jenkins
+    ansible_user_dir: /home/jenkins/
+  roles:
+    - tripleo-gate
+
+- name: Clone the gated DLRN repos and trigger rpm injection
+  hosts: undercloud
+  vars:
+    artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
+    ansible_user: jenkins
+    ansible_user_dir: /home/jenkins/
+    tasks:
+        - environment:
+            LIBGUESTFS_BACKEND: direct
+            LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+          block:
+            - name: Remove inject script if exists
+              file: path='{{ working_dir }}/inject_gating_repo.sh' state=absent
+            - name: Write the inject script
+              blockinfile:
+                dest: '{{ working_dir }}/inject_gating_repo.sh'
+                content: |
+                  #!/bin/bash
+                  mkdir -p /opt
+                  pushd /opt
+                  tar xzf /tmp/gating_repo.tar.gz
+                  rm /tmp/gating_repo.tar.gz
+
+                  for file in /etc/yum.repos.d/*.repo; do
+                      sed -i 's/priority=2/priority=3/' $file;
+                      sed -i 's/priority=1/priority=2/' $file;
+                  done
+
+                  cat > /etc/yum.repos.d/gating.repo << EOF
+                  [gating-repo]
+                  name=Gating repository
+                  baseurl=file:///opt/gating_repo
+                  enabled=1
+                  gpgcheck=0
+                  priority=1
+                  EOF
+
+                  yum --disablerepo="*" --enablerepo="gating-repo" update -y
+                create: yes
+
+            - name: Inject the gating repo (overcloud-full)
+              command: >
+                virt-customize -a {{ working_dir }}/overcloud-full.qcow2
+                --upload {{ compressed_gating_repo }}:/tmp/gating_repo.tar.gz
+                --run '{{ working_dir }}/inject_gating_repo.sh'
+
+            - name: Run gating repo on the host
+              command: '{{ working_dir }}/inject_gating_repo.sh > {{ working_dir }}/inject_repo.log'
+              become: true
