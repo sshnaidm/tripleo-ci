@@ -57,7 +57,8 @@ fi
 export OVERCLOUD_DEPLOY_ARGS
 
 UNDERCLOUD_SCRIPTS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/${CONFIG}.yml \
--e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml -e tripleo_root=$TRIPLEO_ROOT"
+-e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml -e tripleo_root=$TRIPLEO_ROOT \
+-e undercloud_hieradata_override_file=~/quickstart-hieradata-overrides.yaml"
 PLAYBOOK=" --playbook ovb-playbook.yml --requirements quickstart-extras-requirements.txt "
 
 

@@ -6,6 +6,14 @@
     - name: Here comes any setup which is required for quickstart to run
       debug: msg="Here comes any setup which is required for quickstart to run"
 
+    - name: Add hiera overriding file
+      blockinfile:
+        create: yes
+        dest: ~/quickstart-hieradata-overrides.yaml
+        content: |
+          ironic::drivers::deploy::http_port: 3816
+          ironic::drivers::ssh::libvirt_uri: 'qemu:///session'
+
 - name: Clone the gated DLRN repos and trigger rpm injection
   hosts: undercloud
   vars:

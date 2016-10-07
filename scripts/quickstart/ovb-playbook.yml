@@ -37,6 +37,13 @@
   roles:
     - overcloud-prep-images
 
+- name:  Remove big image
+  hosts: undercloud
+  gather_facts: no
+  tasks:
+    - name: Remove overcloud-full.qcow2
+      file: path=~/overcloud-full.qcow2 state=absent
+
 # Prepare the undercloud networks for the overcloud deployment
 - name:  Prepare the undercloud networks for the overcloud deployment
   hosts: undercloud
