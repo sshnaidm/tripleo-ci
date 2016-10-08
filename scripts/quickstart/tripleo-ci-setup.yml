@@ -21,7 +21,7 @@
     ansible_user: jenkins
     ansible_user_dir: /home/jenkins/
   roles:
-    - tripleo-gate
+    - { role: tripleo-gate, when: "{{ lookup('env', 'USE_DELOREAN') }} == 1" }
 
 - name: Clone the gated DLRN repos and trigger rpm injection
   hosts: undercloud
@@ -34,6 +34,7 @@
             LIBGUESTFS_BACKEND: direct
             LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
           block:
+
             - name: Remove inject script if exists
               file: path='{{ working_dir }}/inject_gating_repo.sh' state=absent
             - name: Write the inject script
@@ -72,3 +73,4 @@
             - name: Run gating repo on the host
               command: '{{ working_dir }}/inject_gating_repo.sh > {{ working_dir }}/inject_repo.log'
               become: true
+          when: "{{ lookup('env', 'USE_DELOREAN')|default(0, true) }} == 1"

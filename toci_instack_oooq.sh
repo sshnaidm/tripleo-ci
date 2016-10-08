@@ -7,6 +7,8 @@ touch /tmp/toci.started
 exit_value=0
 export CURRENT_DIR=$(dirname ${BASH_SOURCE[0]:-$0})
 export TRIPLEO_CI_DIR=$CURRENT_DIR/../
+export ZUUL_HOST=review.openstack.org
+export USE_DELOREAN=0
 
 source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_vars.bash
 source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_functions.sh
@@ -93,6 +95,17 @@ else
     exit_value=1
 fi
 collect_oooq_logs
+
+$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap --no-clone \
+        $OOOQ_DEFAULT_ARGS \
+        --requirements quickstart-extras-requirements.txt \
+        --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_config/${CONFIG}.yml \
+        --playbook collect-logs.yml \
+        -e artcl_collect_dir=/var/log/oooq/collected_logs \
+        -e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml \
+        -e tripleo_root=$TRIPLEO_ROOT \
+        -e ansible_user=jenkins \
+        127.0.0.2 2>&1| sudo tee /var/log/quickstart_collectlogs.log ||:
 
 popd
 

@@ -23,21 +23,67 @@ network_isolation_type: network-isolation
 network_isolation: true
 enable_pacemaker: true
 deploy_timeout: 110
-flavor_args: |
-  --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
-
-extra_args: |
-  {% if overcloud_nodes|length > 3 %}--control-scale 3 {% endif %}
-  --ntp-server 0.centos.pool.ntp.org \
-  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml \
-  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
-  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
-  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
+#flavor_args: |
+#  --control-flavor baremetal --compute-flavor baremetal --ceph-storage-flavor baremetal \
+#
+#extra_args: |
+#  {% if overcloud_nodes|length > 3 %}--control-scale 3 {% endif %}
+#  --ntp-server 0.centos.pool.ntp.org \
+#  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml \
+#  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml \
+#  -e {{ tripleo_root }}/tripleo-ci/test-environments/worker-config.yaml \
+#  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml \
 
 # Running quickstart as tripleo-ci exactly
-#step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
-#undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
+step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
+undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 #overcloud_nodes:
-#enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-#deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
-#network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
+enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
+deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
+network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
+
+# Collect logs settings
+
+artcl_publish: false
+artcl_rsync_logs: false
+artcl_collect_list:
+  - /var/log/
+  - /var/lib/mysql
+  - /etc/nova
+  - /etc/ceilometer
+  - /etc/cinder
+  - /etc/glance
+  - /etc/ironic
+  - /etc/ironic-inspector
+  - /etc/keystone
+  - /etc/neutron
+  - /etc/swift
+  - /etc/heat
+  - /etc/libvirt
+  - /etc/rabbitmq
+  - /etc/ntp
+  - /etc/puppet
+  - /etc/qpid
+  - /etc/qpidd.conf
+  - /home/jenkins/.instack/install-undercloud.log
+  - /home/jenkins/stackrc
+  - /home/jenkins/overcloudrc
+  - /home/jenkins/*.log
+  - /home/jenkins/*.json
+  - /home/jenkins/*.conf
+  - /home/jenkins/*.yml
+  - /home/jenkins/*.yaml
+  - /home/jenkins/*.sh
+  - /home/jenkins/deploy-overcloudrc
+  - /home/jenkins/network-environment.yaml
+  - /home/jenkins/tempest/*.xml
+  - /home/jenkins/tempest/*.html
+  - /home/jenkins/tempest/*.log
+  - /home/jenkins/tempest/etc/*.conf
+  - /home/jenkins/local_tht
+  - /usr/share/openstack-tripleo-heat-templates
+  - /etc/yum.repos.d
+  - /etc/selinux
+  - /tmp/*.yml
+  - /tmp/*.yaml
+artcl_gzip_only: true

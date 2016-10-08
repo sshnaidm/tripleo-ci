@@ -356,8 +356,9 @@ function prepare_images_oooq {
 }
 
 function collect_oooq_logs {
-    cp ${HOME}/*.{sh,log} $OOOQ_LOGS/ ||:
+    cp ${HOME}/*.{sh,log,json,conf} $OOOQ_LOGS/ ||:
     cp ${HOME}/tempest/*.{sh,log} $OOOQ_LOGS/ ||:
     sudo cp /var/log/quickstart_*.log $OOOQ_LOGS/ ||:
     tar -czf $OOOQ_LOGS/quickstart.tar.gz $OPT_WORKDIR
+    mkdir -p $OOOQ_LOGS/collected_logs
 }
