@@ -71,8 +71,8 @@
             --run '{{ working_dir }}/inject_gating_repo.sh'
 
         - name: Run gating repo on the host
-          command: |
-            cp {{ artg_compressed_gating_repo }} /tmp/gating_repo.tar.gz
-            '{{ working_dir }}/inject_gating_repo.sh > {{ working_dir }}/inject_repo.log'
+          shell: |
+            cp {{ artg_compressed_gating_repo }} /tmp/gating_repo.tar.gz;
+            bash {{ working_dir }}/inject_gating_repo.sh > {{ working_dir }}/inject_repo.log
           become: true
       when: "{{ lookup('env', 'USE_DELOREAN')|default(0, true) }} == 1"
