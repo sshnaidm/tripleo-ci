@@ -323,6 +323,7 @@ function sanitize_ip_address {
 
 function prepare_oooq {
     sudo yum reinstall -y python-requests || sudo yum install -y python-requests
+    sudo yum install -y libguestfs-tools-c
     export OPT_WORKDIR=${WORKSPACE}/.quickstart
     export OOOQ_LOGS=/var/log/oooq
     export OOO_WORKDIR_LOCAL=$HOME

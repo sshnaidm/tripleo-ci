@@ -14,14 +14,14 @@
           ironic::drivers::deploy::http_port: 3816
           ironic::drivers::ssh::libvirt_uri: 'qemu:///session'
 
-- name: Clone the gated DLRN repos and trigger rpm injection
+- name: Run DLRN gate role and create repo
   hosts: undercloud
   vars:
     artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
     ansible_user: jenkins
     ansible_user_dir: /home/jenkins/
   roles:
-    - { role: tripleo-gate, when: "{{ lookup('env', 'USE_DELOREAN') }} == 1" }
+    - { role: tripleo-gate, when: "{{ lookup('env', 'USE_DELOREAN')|default(0, true) }} == 1" }
 
 - name: Clone the gated DLRN repos and trigger rpm injection
   hosts: undercloud
@@ -29,48 +29,50 @@
     artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
     ansible_user: jenkins
     ansible_user_dir: /home/jenkins/
-    tasks:
-        - environment:
-            LIBGUESTFS_BACKEND: direct
-            LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
-          block:
+  tasks:
+    - environment:
+        LIBGUESTFS_BACKEND: direct
+        LIBVIRT_DEFAULT_URI: 'qemu:///session'
+      block:
 
-            - name: Remove inject script if exists
-              file: path='{{ working_dir }}/inject_gating_repo.sh' state=absent
-            - name: Write the inject script
-              blockinfile:
-                dest: '{{ working_dir }}/inject_gating_repo.sh'
-                content: |
-                  #!/bin/bash
-                  mkdir -p /opt
-                  pushd /opt
-                  tar xzf /tmp/gating_repo.tar.gz
-                  rm /tmp/gating_repo.tar.gz
+        - name: Remove inject script if exists
+          file: path='{{ working_dir }}/inject_gating_repo.sh' state=absent
+        - name: Write the inject script
+          blockinfile:
+            dest: '{{ working_dir }}/inject_gating_repo.sh'
+            content: |
+              #!/bin/bash
+              mkdir -p /opt
+              pushd /opt
+              tar xzf /tmp/gating_repo.tar.gz
+              rm /tmp/gating_repo.tar.gz
 
-                  for file in /etc/yum.repos.d/*.repo; do
-                      sed -i 's/priority=2/priority=3/' $file;
-                      sed -i 's/priority=1/priority=2/' $file;
-                  done
+              for file in /etc/yum.repos.d/*.repo; do
+                sed -i 's/priority=2/priority=3/' $file;
+                sed -i 's/priority=1/priority=2/' $file;
+              done
 
-                  cat > /etc/yum.repos.d/gating.repo << EOF
-                  [gating-repo]
-                  name=Gating repository
-                  baseurl=file:///opt/gating_repo
-                  enabled=1
-                  gpgcheck=0
-                  priority=1
-                  EOF
+              cat > /etc/yum.repos.d/gating.repo << EOF
+              [gating-repo]
+              name=Gating repository
+              baseurl=file:///opt/gating_repo
+              enabled=1
+              gpgcheck=0
+              priority=1
+              EOF
 
-                  yum --disablerepo="*" --enablerepo="gating-repo" update -y
-                create: yes
+              yum --disablerepo="*" --enablerepo="gating-repo" update -y
+            create: yes
 
-            - name: Inject the gating repo (overcloud-full)
-              command: >
-                virt-customize -a {{ working_dir }}/overcloud-full.qcow2
-                --upload {{ compressed_gating_repo }}:/tmp/gating_repo.tar.gz
-                --run '{{ working_dir }}/inject_gating_repo.sh'
+        - name: Inject the gating repo (overcloud-full)
+          command: >
+            virt-customize -a {{ working_dir }}/overcloud-full.qcow2
+            --upload {{ compressed_gating_repo }}:/tmp/gating_repo.tar.gz
+            --run '{{ working_dir }}/inject_gating_repo.sh'
 
-            - name: Run gating repo on the host
-              command: '{{ working_dir }}/inject_gating_repo.sh > {{ working_dir }}/inject_repo.log'
-              become: true
-          when: "{{ lookup('env', 'USE_DELOREAN')|default(0, true) }} == 1"
+        - name: Run gating repo on the host
+          command: |
+            cp {{ artg_compressed_gating_repo }} /tmp/gating_repo.tar.gz
+            '{{ working_dir }}/inject_gating_repo.sh > {{ working_dir }}/inject_repo.log'
+          become: true
+      when: "{{ lookup('env', 'USE_DELOREAN')|default(0, true) }} == 1"
