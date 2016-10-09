@@ -16,9 +16,9 @@ source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_functions.sh
 
 mkdir -p $WORKSPACE/logs
 
-hostname | sudo dd of=/etc/hostname
+echo 'undercloud' | sudo dd of=/etc/hostname
 echo "127.0.0.1 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts
-echo "127.0.0.2 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts
+echo "127.0.0.2 undercloud undercloud.openstacklocal" | sudo tee -a /etc/hosts
 echo | sudo tee -a /root/.ssh/authorized_keys | tee -a ~/.ssh/authorized_keys
 if [ ! -e ${HOME}/.ssh/id_rsa.pub ] ; then
     if [[ -e ${HOME}/.ssh/id_rsa ]]; then
@@ -74,14 +74,14 @@ env > /tmp/my_env_is_here
 echo "$TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
-        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
+        $OOOQ_DEFAULT_ARGS undercloud 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/undercloud_install.txt ||:" | tee command_log
 
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
         $PLAYBOOK $UNDERCLOUD_SCRIPTS \
-        $OOOQ_DEFAULT_ARGS 127.0.0.2 2>&1 \
+        $OOOQ_DEFAULT_ARGS undercloud 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.log || exit_value=2
 
 if [[ -e ${OOO_WORKDIR_LOCAL}/overcloudrc ]]; then
@@ -90,7 +90,7 @@ if [[ -e ${OOO_WORKDIR_LOCAL}/overcloudrc ]]; then
         -t all  \
         --playbook tempest.yml  \
         --extra-vars run_tempest=True  \
-        -e test_regex='.*smoke' 127.0.0.2 2>&1| sudo tee /var/log/quickstart_tempest.log || exit_value=$?
+        -e test_regex='.*smoke' undercloud 2>&1| sudo tee /var/log/quickstart_tempest.log || exit_value=$?
 else
     exit_value=1
 fi
@@ -105,7 +105,7 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap --no-clone \
         -e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb.yml \
         -e tripleo_root=$TRIPLEO_ROOT \
         -e ansible_user=jenkins \
-        127.0.0.2 2>&1| sudo tee /var/log/quickstart_collectlogs.log ||:
+        undercloud 2>&1| sudo tee /var/log/quickstart_collectlogs.log ||:
 
 popd
 
