@@ -16,6 +16,7 @@ source $TRIPLEO_CI_DIR/tripleo-ci/scripts/common_functions.sh
 
 mkdir -p $WORKSPACE/logs
 
+sudo hostnamectl set-hostname undercloud
 echo 'undercloud' | sudo dd of=/etc/hostname
 echo "127.0.0.1 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts
 echo "127.0.0.2 undercloud undercloud.openstacklocal" | sudo tee -a /etc/hosts
