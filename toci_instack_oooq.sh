@@ -96,6 +96,7 @@ else
     exit_value=1
 fi
 collect_oooq_logs
+sed -i "s@/home/stack/@/home/jenkins/@g" $OPT_WORKDIR/usr/local/share/ansible/roles/tripleo-collect-logs/tasks/create-docs.yml ||:
 
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap --no-clone \
         $OOOQ_DEFAULT_ARGS \
