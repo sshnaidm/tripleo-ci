@@ -49,7 +49,11 @@ export OOOQ_ARGS=" --config $TRIPLEO_ROOT/tripleo-quickstart/config/general_conf
 -e @$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/ovb-settings.yml -e tripleo_root=$TRIPLEO_ROOT \
 -e undercloud_hieradata_override_file=~/quickstart-hieradata-overrides.yaml \
 -e gating_repo_enabled=True"
-export PLAYBOOK=" --playbook ovb-playbook.yml --requirements quickstart-extras-requirements.txt "
+if [[ "$OVB" == 1 ]]; then
+    export PLAYBOOK=" --playbook ovb-playbook.yml --requirements quickstart-extras-requirements.txt "
+elif [[ "$OSINFRA" == 1 ]]; then
+    export PLAYBOOK=" --playbook osinfra-playbook.yml --requirements quickstart-extras-requirements.txt "
+fi
 
 # Try to clean as much as possible
 shopt -s extglob
