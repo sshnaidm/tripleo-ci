@@ -174,7 +174,7 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
             ;;
         multinode)
             MULTINODE=1
-            TOCIRUNNER="./toci_instack_osinfra.sh"
+            TOCIRUNNER="./toci_instack_infraq.sh"
             NODECOUNT=1
             PACEMAKER=1
             OSINFRA=1
