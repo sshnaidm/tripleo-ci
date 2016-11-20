@@ -82,6 +82,8 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         $OOOQ_DEFAULT_ARGS undercloud 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.log || exit_value=2
 
+exit 0
+
 # TODO(sshnaidm): to include this in general ovb-playbook(?)
 if [[ -e ${OOO_WORKDIR_LOCAL}/overcloudrc ]]; then
     $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --bootstrap \
