@@ -64,6 +64,7 @@ export OVERCLOUD_SSH_USER=${OVERCLOUD_SSH_USER:-"jenkins"}
 export OVERCLOUD_DEPLOY_ARGS=${OVERCLOUD_DEPLOY_ARGS:-""}
 export OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS --libvirt-type=qemu -t $OVERCLOUD_DEPLOY_TIMEOUT"
 export OVERCLOUD_UPDATE_ARGS=
+export OVERCLOUD_VALIDATE_ARGS=
 export OVERCLOUD_PINGTEST_ARGS="--skip-pingtest-cleanup"
 export UNDERCLOUD_SSL=0
 export UNDERCLOUD_IDEMPOTENT=0
@@ -218,10 +219,13 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
 done
 
 # Limit worker counts to avoid overloading our limited resources
+# --validation-errors-fatal was deprecated in newton and removed in ocata
 if [[ "${STABLE_RELEASE}" =~ ^(liberty|mitaka)$ ]] ; then
     OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config-mitaka-and-below.yaml"
+    OVERCLOUD_VALIDATE_ARGS=${OVERCLOUD_VALIDATE_ARGS:-"--validation-errors-fatal --validation-warnings-fatal"}
 else
     OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS -e $TRIPLEO_ROOT/tripleo-ci/test-environments/worker-config.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml"
+    OVERCLOUD_VALIDATE_ARGS=${OVERCLOUD_VALIDATE_ARGS:-"--validation-warnings-fatal"}
 fi
 # If we're running an update job, regenerate the args to reflect the above changes
 if [ -n "$OVERCLOUD_UPDATE_ARGS" ]; then
