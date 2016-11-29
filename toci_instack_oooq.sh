@@ -34,6 +34,9 @@ elif [[ "$TOCI_JOBTYPE" =~ "-nonha" ]]; then
 else
     CONFIG=${CONFIG:-"$TRIPLEO_ROOT/tripleo-quickstart/config/general_config/minimal.yml"}
 fi
+if [[ "$TOCI_JOBTYPE" =~ "-containers" ]]; then
+    CONFIG=${CONFIG:-"$TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/containers_minimal.yml"}
+fi
 
 # TODO(sshnaidm): to move these variables to jobs yaml config files (see above)
 if [[ "${STABLE_RELEASE}" =~ ^(liberty|mitaka)$ ]] ; then
@@ -68,6 +71,7 @@ mkdir -p $WORKSPACE/logs
 sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
 # TODO(sshnaidm): check why it's not cloned
 [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && /usr/zuul-env/bin/zuul-cloner --workspace /opt/stack/new/ https://git.openstack.org/openstack tripleo-quickstart
+echo 'git+https://github.com/redhat-openstack/ansible-role-tripleo-overcloud-prep-containers.git/#egg=ansible-role-tripleo-overcloud-prep-containers' >> $TRIPLEO_ROOT/tripleo-quickstart/quickstart-extras-requirements.txt
 cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
 cp $TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
