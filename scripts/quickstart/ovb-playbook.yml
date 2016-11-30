@@ -4,10 +4,13 @@
   gather_facts: yes
   tags:
     - undercloud-scripts
+    - debugme
   roles:
     - tripleo-inventory
 
 - include: tripleo-ci-setup-playbook.yml
+  tags:
+    - debugme
 
 # Deploy the undercloud
 - name:  Install undercloud

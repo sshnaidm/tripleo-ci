@@ -66,6 +66,7 @@ mkdir -p $WORKSPACE/logs
 sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
 # TODO(sshnaidm): check why it's not cloned
 [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && /usr/zuul-env/bin/zuul-cloner --workspace /opt/stack/new/ https://git.openstack.org/openstack tripleo-quickstart
+echo 'git+https://github.com/sshnaidm/tripleo-quickstart-extras.git@dlrn#egg=tripleo-quickstart-extras' > $TRIPLEO_ROOT/tripleo-quickstart/quickstart-extras-requirements.txt
 cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
 cp $TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
@@ -75,7 +76,7 @@ pushd $TRIPLEO_ROOT/tripleo-quickstart/
 # it's not usable here right now. Hopefully ssh config is not required for us.
 export ANSIBLE_SSH_ARGS=""
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
-        -t all \
+        -t debugme \
         $PLAYBOOK $OOOQ_ARGS \
         $OOOQ_DEFAULT_ARGS undercloud 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.log || exit_value=2
