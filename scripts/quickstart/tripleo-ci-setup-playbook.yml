@@ -58,4 +58,3 @@
 
 # TODO(sshnaidm): to create a separate role for this in quickstart-extras(?)
 - include: inject_repo-playbook.yml
-  when: compressed_gating_repo is defined
