@@ -54,7 +54,7 @@
         - openstack/tripleo-quickstart
         - openstack-infra/tripleo-ci
   roles:
-    - tripleo-gate
+    - build-test-packages
 
 # TODO(sshnaidm): to create a separate role for this in quickstart-extras(?)
 - include: inject_repo-playbook.yml
