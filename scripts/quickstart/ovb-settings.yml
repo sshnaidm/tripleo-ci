@@ -29,6 +29,7 @@ deploy_timeout: 110
 step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
 undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 #overcloud_nodes:
+# Containers
 container_args: >-
   -e {{overcloud_templates_path}}/environments/docker.yaml
   -e {{overcloud_templates_path}}/environments/docker-network.yaml
