@@ -38,11 +38,21 @@ network_container_args: >-
   -e {{overcloud_templates_path}}/environments/network-isolation.yaml
   -e {{overcloud_templates_path}}/environments/docker-network-isolation.yaml
   -e {{overcloud_templates_path}}/environments/net-single-nic-with-vlans.yaml
-  -e $HOME/network-environment.yaml
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml
   -e {{ working_dir }}/containers-default-parameters.yaml
 
 enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }} {% if containerized_compute|default(false) %}{{ container_args }} {{ network_container_args }}{% endif %}"
+deploy_args: >-
+  {{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}
+  {% if containerized_compute|default(false) %}
+  --templates {{overcloud_templates_path}}/tripleo-heat-templates
+  --libvirt-type qemu
+  -e /home/stack/tripleo-heat-templates/environments/low-memory-usage.yaml
+  --ntp-server pool.ntp.org
+  {{ container_args }}
+  {{ network_container_args }}
+  {% endif %}
+
 network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
 
 # Collect logs settings
