@@ -28,7 +28,7 @@ test_ping: true
 run_tempest: false
 tempest_workers: 4
 
-overcloud_templates_path: /home/stack/tripleo-heat-templates
+overcloud_templates_path: /home/jenkins/tripleo-heat-templates
 #overcloud_templates_branch: master
 overcloud_templates_repo: https://git.openstack.org/openstack/tripleo-heat-templates
 overcloud_templates_refspec: refs/changes/59/330659/46

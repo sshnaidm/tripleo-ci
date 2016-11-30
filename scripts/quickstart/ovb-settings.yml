@@ -25,7 +25,6 @@ network_isolation: true
 enable_pacemaker: true
 deploy_timeout: 110
 
-use_containers: "{{ lookup('env','CONTAINERS')|bool }}"
 # Running quickstart as tripleo-ci exactly
 step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
 undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
@@ -42,7 +41,7 @@ network_container_args: >-
   -e {{ working_dir }}/containers-default-parameters.yaml
 
 enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }} {% if use_containers %}{{ container_args }} {{ network_container_args }}{% endif %}"
+deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }} {% if containerized_compute|default(false) %}{{ container_args }} {{ network_container_args }}{% endif %}"
 network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
 
 # Collect logs settings
