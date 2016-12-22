@@ -29,30 +29,21 @@ deploy_timeout: 110
 step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
 undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 #overcloud_nodes:
-# Containers
-container_args: >-
-  -e {{overcloud_templates_path}}/environments/docker.yaml
-  -e {{overcloud_templates_path}}/environments/docker-network.yaml
-  -e {{ working_dir }}/containers-default-parameters.yaml
-network_container_args: >-
-  -e {{overcloud_templates_path}}/environments/network-isolation.yaml
-  -e {{overcloud_templates_path}}/environments/docker-network-isolation.yaml
-  -e {{overcloud_templates_path}}/environments/net-single-nic-with-vlans.yaml
-  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml
-  -e {{ working_dir }}/containers-default-parameters.yaml
-
+flavor_args: ''
 enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-deploy_args: >-
-  {{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}
-  {% if containerized_compute|default(false) %}
-  --templates {{overcloud_templates_path}}
-  --libvirt-type qemu
-  -e {{overcloud_templates_path}}/environments/low-memory-usage.yaml
-  --ntp-server pool.ntp.org
-  {{ container_args }}
-  {{ network_container_args }}
-  {% endif %}
-
+#deploy_args: >-
+#  {{ libvirt_args }}
+#  {{ flavor_args }}
+#  {{ timeout_args }}
+#  {{ container_args }}
+#  {{ network_args }}
+#  {{ pacemaker_args }}
+#  {{ workers_args }}
+#  {{ ssl_args }}
+#  {{ extra_tht_config_args|default('') }}
+#  {{ validation_args }}
+#  {{ extra_args }}
+#deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
 network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
 
 # Collect logs settings

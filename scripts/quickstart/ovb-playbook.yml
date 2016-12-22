@@ -70,6 +70,27 @@
   roles:
     - { role: overcloud-ssl, when: ssl_overcloud|bool }
 
+- name: Setting deploy args for containers
+  set_fact:
+    deploy_args: >-
+      {{ libvirt_args }}
+      {{ flavor_args }}
+      {{ timeout_args }}
+      {{ container_args }}
+      {{ network_args }}
+      {{ pacemaker_args }}
+      {{ workers_args }}
+      {{ ssl_args }}
+      {{ extra_tht_config_args|default('') }}
+      {{ validation_args }}
+      {{ extra_args }}
+  when: containerized_overcloud|bool
+
+- name: Setting deploy args for non containers
+  set_fact:
+    deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
+  when: not containerized_overcloud|bool
+
 # Deploy the overcloud
 - name:  Deploy the overcloud
   hosts: undercloud
