@@ -74,7 +74,7 @@ sudo mkdir $OOOQ_LOGS && sudo chown -R ${USER} $OOOQ_LOGS
 [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart ]] && /usr/zuul-env/bin/zuul-cloner --workspace /opt/stack/new/ https://git.openstack.org/openstack tripleo-quickstart
 [[ ! -e $TRIPLEO_ROOT/tripleo-quickstart-extras ]] && /usr/zuul-env/bin/zuul-cloner --workspace /opt/stack/new/ https://git.openstack.org/openstack tripleo-quickstart-extras
 
-echo "-e git+file://$TRIPLEO_ROOT/tripleo-quickstart-extras" > $TRIPLEO_ROOT/tripleo-quickstart/quickstart-extras-requirements.txt
+echo "git+file:$TRIPLEO_ROOT/tripleo-quickstart-extras" > $TRIPLEO_ROOT/tripleo-quickstart/quickstart-extras-requirements.txt
 cp $TRIPLEO_ROOT/tripleo-ci/scripts/hosts $OPT_WORKDIR/hosts
 cp $TRIPLEO_ROOT/tripleo-ci/scripts/quickstart/*yml $TRIPLEO_ROOT/tripleo-quickstart/playbooks/
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
