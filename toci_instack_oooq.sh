@@ -86,7 +86,7 @@ pushd $TRIPLEO_ROOT/tripleo-quickstart/
 export ANSIBLE_SSH_ARGS=""
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
-        $PLAYBOOK $OOOQ_ARGS \
+        $PLAYBOOK $OOOQ_ARGS -e overcloud_templates_refspec="refs/changes/80/395880/12" -e overcloud_tripleo_common_refspec="refs/changes/08/411908/2" \
         $OOOQ_DEFAULT_ARGS undercloud 2>&1 \
         | ts '%Y-%m-%d %H:%M:%S.000 |' | sudo tee /var/log/quickstart_install.log || exit_value=2
 
