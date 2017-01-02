@@ -18,7 +18,6 @@ public_net_pool_start: 10.0.0.50
 public_net_pool_end: 10.0.0.100
 public_net_gateway: 10.0.0.1
 
-
 # Running quickstart with its own config
 network_isolation_type: network-isolation
 network_isolation: true
@@ -29,9 +28,28 @@ deploy_timeout: 110
 step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
 undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 #overcloud_nodes:
+flavor_args: ''
 enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
+deploy_args: >-
+  {% if containerized_overcloud|bool %}{{ libvirt_args }}
+  {{ flavor_args }}
+  {{ timeout_args }}
+  {{ container_args }}
+  {{ network_args }}
+  {{ pacemaker_args }}
+  {{ workers_args }}
+  {{ ssl_args }}
+  {{ extra_tht_config_args|default('') }}
+  {{ validation_args }}
+  {{ extra_args }}
+  {% else %}
+  {{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}
+  {% endif %}
+#deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
 network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
+
+# Overcloud deploy
+overcloud_templates_path: /usr/share/openstack-tripleo-heat-templates
 
 # Collect logs settings
 
