@@ -189,7 +189,7 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
             -e /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml \
             -e /usr/share/openstack-tripleo-heat-templates/environments/docker-network.yaml \
             -e ~/containers-default-parameters.yaml \
-            -e ~/network-environment.yaml"
+            -e $TRIPLEO_ROOT/tripleo-ci/test-environments/containers_noiso.yaml"
             ;;
         ovb)
             OVB=1

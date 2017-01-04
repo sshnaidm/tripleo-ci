@@ -33,6 +33,7 @@ tempest_config: false
 test_ping: true
 run_tempest: false
 tempest_workers: 4
+extra_args: "-e {{ tripleo_root }}/tripleo-ci/test-environments/containers_noiso.yaml"
 
 # Config for custom tripleo-heat-templates
 #overcloud_templates_path: /usr/share/openstack-tripleo-heat-templates
