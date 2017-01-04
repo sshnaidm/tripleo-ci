@@ -28,8 +28,21 @@ deploy_timeout: 110
 step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
 undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 #overcloud_nodes:
+flavor_args: ''
 enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
+deploy_args: >-
+  {{ libvirt_args }}
+  {{ flavor_args }}
+  {{ timeout_args }}
+  {{ container_args }}
+  {{ network_args }}
+  {{ pacemaker_args }}
+  {{ workers_args }}
+  {{ ssl_args }}
+  {{ extra_tht_config_args|default('') }}
+  {{ validation_args }}
+  {{ extra_args }}
+#deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
 network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
 
 # Overcloud deploy
