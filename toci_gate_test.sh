@@ -188,8 +188,11 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
             OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS \
             -e /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml \
             -e /usr/share/openstack-tripleo-heat-templates/environments/docker-network.yaml \
-            -e ~/containers-default-parameters.yaml \
-            -e ~/network-environment.yaml"
+            -e /usr/share/openstack-tripleo-heat-templates/environments/docker-network-isolation.yaml \
+            -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+            -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml \
+            -e ~/network-environment.yaml \
+            -e ~/containers-default-parameters.yaml"
             ;;
         ovb)
             OVB=1
