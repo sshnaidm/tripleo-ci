@@ -26,13 +26,25 @@ enable_pacemaker: true
 deploy_timeout: 110
 
 # Running quickstart as tripleo-ci exactly
-step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
+step_introspect: true
 undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 #overcloud_nodes:
-enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
 network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
 
+flavor_args: ''
+enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
+deploy_args: >-
+  {{ libvirt_args }}
+  {{ flavor_args }}
+  {{ timeout_args }}
+  {{ container_args }}
+  {{ network_args }}
+  {{ pacemaker_args }}
+  {{ workers_args }}
+  {{ ssl_args }}
+  {{ extra_tht_config_args|default('') }}
+  {{ validation_args }}
+  {{ extra_args }}
 # Collect logs settings
 
 artcl_publish: false
