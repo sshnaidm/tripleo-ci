@@ -197,7 +197,9 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
             OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS \
             -e /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml \
             -e /usr/share/openstack-tripleo-heat-templates/environments/docker-network.yaml \
-            -e ~/containers-default-parameters.yaml"
+            -e ~/containers-default-parameters.yaml \
+            -e ~/network-environment.yaml"
+            NETISO_V4=1
             ;;
         ovb)
             OVB=1
