@@ -50,7 +50,8 @@ export OOOQ_ARGS=" --config $CONFIG \
 -e undercloud_hieradata_override_file=~/quickstart-hieradata-overrides.yaml \
 -e gating_repo_enabled=True \
 -e enable_vbmc=False \
--e non_root_user=$USER"
+-e non_root_user=$USER\
+-e undercloud_user=$USER"
 export PLAYBOOK=" --playbook ovb-playbook.yml --requirements requirements.txt --requirements quickstart-extras-requirements.txt "
 
 # Try to clean as much as possible
@@ -76,7 +77,7 @@ $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh --install-deps
 pushd $TRIPLEO_ROOT/tripleo-quickstart/
 # TODO(sshnaidm): fix inventory role with prepares ssh.config.ansible,
 # it's not usable here right now. Hopefully ssh config is not required for us.
-export ANSIBLE_SSH_ARGS=""
+#export ANSIBLE_SSH_ARGS=""
 $TRIPLEO_ROOT/tripleo-quickstart/quickstart.sh  --bootstrap --no-clone \
         -t all \
         $PLAYBOOK $OOOQ_ARGS \
