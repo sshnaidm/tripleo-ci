@@ -50,7 +50,7 @@ export OOOQ_ARGS=" --config $CONFIG \
 -e undercloud_hieradata_override_file=~/quickstart-hieradata-overrides.yaml \
 -e gating_repo_enabled=True \
 -e enable_vbmc=False \
--e non_root_user=$USER\
+-e non_root_user=$USER \
 -e undercloud_user=$USER"
 export PLAYBOOK=" --playbook ovb-playbook.yml --requirements requirements.txt --requirements quickstart-extras-requirements.txt "
 
