@@ -269,7 +269,19 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
                 TOCIRUNNER="./toci_instack_oooq_multinode.sh"
             else
                 TOCIRUNNER="./toci_instack_oooq.sh"
+                INTROSPECT=1
+                UNDERCLOUD_SSL=1
+                NODECOUNT=5
+                if [[ "${STABLE_RELEASE}" =~ ^(liberty|mitaka)$ ]] ; then
+                    ENDPOINT_LIST_LOCATION=$TRIPLEO_ROOT/tripleo-ci/test-environments
+                    CA_ENVIRONMENT_FILE=inject-trust-anchor.yaml
+                else
+                    ENDPOINT_LIST_LOCATION=/usr/share/openstack-tripleo-heat-templates/environments
+                    CA_ENVIRONMENT_FILE=inject-trust-anchor-hiera.yaml
+                fi
+                OVERCLOUD_DEPLOY_ARGS="$OVERCLOUD_DEPLOY_ARGS -e $TRIPLEO_ROOT/tripleo-ci/test-environments/enable-tls.yaml -e $ENDPOINT_LIST_LOCATION/tls-endpoints-public-ip.yaml -e $TRIPLEO_ROOT/tripleo-ci/test-environments/$CA_ENVIRONMENT_FILE --ceph-storage-scale 1 -e /usr/share/openstack-tripleo-heat-templates/environments/storage-environment.yaml"
             fi
+
             ;;
     esac
 done
