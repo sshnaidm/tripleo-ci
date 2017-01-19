@@ -14,8 +14,8 @@ parameter_defaults:
   ExternalAllocationPools: [{"start": "10.0.0.10", "end": "10.0.0.50"}]
   ExternalInterfaceDefaultRoute: 10.0.0.1
   NeutronExternalNetworkBridge: "''"
-  InternalApiNetCidr: 172.17.0.0/24
-  InternalApiAllocationPools: [{"start": "172.17.0.10", "end": "172.17.0.250"}]
+  InternalApiNetCidr: 172.20.0.0/24
+  InternalApiAllocationPools: [{"start": "172.20.0.10", "end": "172.20.0.250"}]
   StorageNetCidr: 172.18.0.0/24
   StorageAllocationPools: [{"start": "172.18.0.10", "end": "172.18.0.250"}]
   StorageMgmtNetCidr: 172.19.0.0/24

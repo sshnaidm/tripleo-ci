@@ -1,0 +1,7 @@
+
+resource_registry:
+  OS::TripleO::BlockStorage::Net::SoftwareConfig: new-nic-configs/cinder-storage.yaml
+  OS::TripleO::Compute::Net::SoftwareConfig: new-nic-configs/compute.yaml
+  OS::TripleO::Controller::Net::SoftwareConfig: new-nic-configs/controller.yaml
+  OS::TripleO::ObjectStorage::Net::SoftwareConfig: new-nic-configs/swift-storage.yaml
+  OS::TripleO::CephStorage::Net::SoftwareConfig: new-nic-configs/ceph-storage.yaml
