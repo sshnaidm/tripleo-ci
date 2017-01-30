@@ -24,9 +24,6 @@
         sudo cp {{tripleo_root}}/tripleo-ci/test-environments/overcloud-cacert.pem /etc/pki/ca-trust/source/anchors/;
         sudo update-ca-trust extract;
         cp -f {{ lookup('env', 'TE_DATAFILE') }} ~/instackenv.json;
-        {{tripleo_root}}/tripleo-ci/scripts/tripleo.sh --repo-setup;
-        sudo yum reinstall -y python-requests || sudo yum install -y python-requests;
-        sudo yum install -y python-tripleoclient libguestfs-xfs libguestfs-tools-c;
   tags:
     - local
 
