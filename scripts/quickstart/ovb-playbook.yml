@@ -2,47 +2,24 @@
 - name: Add the undercloud node to the generated inventory
   hosts: localhost
   gather_facts: yes
-  tags:
-    - undercloud-scripts
   roles:
     - tripleo-inventory
+  tags:
+    - undercloud-scripts
 
-- name: Local setup for quickstart
-  hosts: undercloud
-  connection: local
-  tasks:
-    - name: Host setup
-      shell: >
-        sudo hostnamectl set-hostname undercloud;
-        echo 'undercloud' | sudo dd of=/etc/hostname;
-        echo "127.0.0.1 $(hostname) $(hostname).openstacklocal" | sudo tee -a /etc/hosts;
-        echo "127.0.0.2 undercloud undercloud.openstacklocal" | sudo tee -a /etc/hosts;
-        if [ ! -e ${HOME}/.ssh/id_rsa.pub ] ; then
-            if [[ -e ${HOME}/.ssh/id_rsa ]]; then
-                ssh-keygen -y -f ${HOME}/.ssh/id_rsa > ${HOME}/.ssh/id_rsa.pub;
-            else
-                ssh-keygen -N "" -f ${HOME}/.ssh/id_rsa;
-            fi
-        fi;
-        cat ~/.ssh/id_rsa.pub | sudo tee -a /root/.ssh/authorized_keys | tee -a ~/.ssh/authorized_keys;
-
-        sudo yum remove -y puppet hiera puppetlabs-release rdo-release;
-        sudo rm -rf /etc/puppet /etc/hiera.yaml;
-        sudo cp {{tripleo_root}}/tripleo-ci/test-environments/overcloud-cacert.pem /etc/pki/ca-trust/source/anchors/;
-        sudo update-ca-trust extract;
-        cp -f {{ lookup('env', 'TE_DATAFILE') }} ~/instackenv.json;
+- include: prepare_slave.yml
   tags:
     - local
 
 - name: Run DLRN gate role and create repo
   hosts: undercloud
   vars:
-    artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
-    ansible_user: jenkins
-    ansible_user_dir: /home/jenkins/
+    artg_compressed_gating_repo: "${HOME}/gating_repo.tar.gz"
     artg_repos_dir: "{{ tripleo_root}}"
   roles:
     - build-test-packages
+  tags:
+    - build
 
 - name: Get images for quickstart
   hosts: undercloud
@@ -53,13 +30,17 @@
         source {{tripleo_root}}/tripleo-ci/scripts/common_functions.sh;
         prepare_images_oooq
       when: "not '{{ lookup('env', 'STABLE_RELEASE') }}'"
+  tags:
+    - get-images
+    - images
 
 - name: Install built repos
   hosts: undercloud
   vars:
-
   roles:
     - build-test-packages
+  tags:
+    - build
 
 # Deploy the undercloud
 - name:  Install undercloud
@@ -67,8 +48,8 @@
   gather_facts: no
   roles:
     - undercloud-deploy
-
-
+  tags:
+    - undercloud-deploy
 
 - include: post-undercloud-playbook.yml
   tags:
