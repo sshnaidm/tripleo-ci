@@ -34,9 +34,32 @@
   tags:
     - local
 
-- include: tripleo-ci-setup-playbook.yml
-# TODO(sshnaidm): to create a separate role for this in quickstart-extras
-- include: build-install-playbook.yml
+- name: Run DLRN gate role and create repo
+  hosts: undercloud
+  vars:
+    artg_compressed_gating_repo: "/home/jenkins/gating_repo.tar.gz"
+    ansible_user: jenkins
+    ansible_user_dir: /home/jenkins/
+    artg_repos_dir: "{{ tripleo_root}}"
+  roles:
+    - build-test-packages
+
+- name: Get images for quickstart
+  hosts: undercloud
+  gather_facts: no
+  tasks:
+    - name: Prepare images
+      shell: >
+        source {{tripleo_root}}/tripleo-ci/scripts/common_functions.sh;
+        prepare_images_oooq
+      when: "not '{{ lookup('env', 'STABLE_RELEASE') }}'"
+
+- name: Install built repos
+  hosts: undercloud
+  vars:
+
+  roles:
+    - build-test-packages
 
 # Deploy the undercloud
 - name:  Install undercloud
@@ -44,6 +67,8 @@
   gather_facts: no
   roles:
     - undercloud-deploy
+
+
 
 - include: post-undercloud-playbook.yml
   tags:
