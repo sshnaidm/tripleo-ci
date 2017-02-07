@@ -25,11 +25,8 @@
   hosts: undercloud
   gather_facts: no
   tasks:
-    - name: Prepare images
-      shell: >
-        source {{tripleo_root}}/tripleo-ci/scripts/common_functions.sh;
-        prepare_images_oooq
-      when: "not '{{ lookup('env', 'STABLE_RELEASE') }}'"
+    - { role: fetch-images, when: "not {{ lookup('env', 'STABLE_RELEASE') }}" }
+    - { role: mmodify-images, when: "not {{ lookup('env', 'STABLE_RELEASE') }}" }
   tags:
     - get-images
     - images
