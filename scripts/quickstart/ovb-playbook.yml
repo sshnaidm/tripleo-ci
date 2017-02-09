@@ -11,31 +11,22 @@
   tags:
     - local
 
-- name: Run DLRN gate role and create repo
+- name: Install repositories
+  hosts: undercloud
+  vars:
+  roles:
+    - repo-setup
+  tags:
+    - repos
+
+- name: Run DLRN gate role and install repo
   hosts: undercloud
   vars:
     artg_compressed_gating_repo: "${HOME}/gating_repo.tar.gz"
     artg_repos_dir: "{{ tripleo_root}}"
   roles:
     - build-test-packages
-  tags:
-    - build
-
-- name: Get images for quickstart
-  hosts: undercloud
-  gather_facts: no
-  tasks:
-    - { role: fetch-images, when: "not {{ lookup('env', 'STABLE_RELEASE') }}" }
-    - { role: mmodify-images, when: "not {{ lookup('env', 'STABLE_RELEASE') }}" }
-  tags:
-    - get-images
-    - images
-
-- name: Install built repos
-  hosts: undercloud
-  vars:
-  roles:
-    - build-test-packages
+    - install-built-packages
   tags:
     - build
 
@@ -48,13 +39,25 @@
   tags:
     - undercloud-deploy
 
-- include: post-undercloud-playbook.yml
+- name: Get images for quickstart
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - { role: fetch-images, when: release == 'master' and not lookup('env', 'BUILD_IMAGES')|bool }
+    - { role: build-images, when: release != 'master' or lookup('env', 'BUILD_IMAGES')|bool }
   tags:
-    - post-undercloud
+    - get-images
+    - images
 
-- include: get_images-playbook.yml
+- name: Prepare images for quickstart
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - repo-setup
+    - install-built-packages
   tags:
-    - image-build
+    - prepare-images
+    - images
 
 - name:  Prepare configuration files for the overcloud deployment
   hosts: undercloud
