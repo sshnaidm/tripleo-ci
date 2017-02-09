@@ -1,5 +1,4 @@
----
-# TODO(sshnaidm): to ansibilize this playbook
+
 - name: Local setup for quickstart
   hosts: localhost
   connection: local
@@ -24,31 +23,37 @@
         sudo cp {{tripleo_root}}/tripleo-ci/test-environments/overcloud-cacert.pem /etc/pki/ca-trust/source/anchors/;
         sudo update-ca-trust extract;
         cp -f {{ lookup('env', 'TE_DATAFILE') }} ~/instackenv.json;
-        {{tripleo_root}}/tripleo-ci/scripts/tripleo.sh --repo-setup;
-        sudo yum reinstall -y python-requests || sudo yum install -y python-requests;
-        sudo yum install -y python-tripleoclient libguestfs-xfs libguestfs-tools-c;
-  tags:
-    - local
 
-# TODO(sshnaidm): to move this to settings(?)
-- name: Prepare environment for quickstart
-  hosts: undercloud
-  gather_facts: no
-  tasks:
-    - name: Here comes any undercloud setup which is required for quickstart to run
-      debug: msg="Here comes any setup which is required for quickstart to run"
+    - name: Delete /tmp/eth2.cfg file
+      file: dest=/tmp/eth2.cfg state=absent
 
-    - name: Add hiera overriding file
-      template:
-        src: "{{tripleo_root}}/tripleo-ci/scripts/quickstart/quickstart-hieradata-overrides.yaml.j2"
-        dest: ~/quickstart-hieradata-overrides.yaml
+    - name: Create /tmp/eth2.cfg file
+      blockinfile:
+        dest: /tmp/eth2.cfg
+        content: |
+          network_config:
+            - type: interface
+              name: eth2
+              use_dhcp: false
+              addresses:
+                - ip_netmask: 10.0.0.1/24
+                - ip_netmask: 2001:db8:fd00:1000::1/64
+        create: yes
 
-- name: Get images for quickstart
-  hosts: undercloud
-  gather_facts: no
-  tasks:
-    - name: Prepare images
+    - name: Add eth2 interface from /tmp/eth2.cfg
+      command: os-net-config -c /tmp/eth2.cfg -v
+      become: true
+      when: network_isolation|bool
+
+    - name: Remove redundant hosts from instackenv.json
       shell: >
-        source {{tripleo_root}}/tripleo-ci/scripts/common_functions.sh;
-        prepare_images_oooq
-      when: "not '{{ lookup('env', 'STABLE_RELEASE') }}'"
+        cp ~/instackenv.json ~/instackenv.json.backup;
+        cat ~/instackenv.json | jq '{"nodes": .nodes[:{{ lookup('env', 'NODECOUNT') }}]}' > /tmp/instackenv1.json &&
+        mv /tmp/instackenv1.json ~/instackenv.json;
+
+    - name: Install ipmitool if not installed
+      yum: name=ipmitool state=latest
+      become: true
+
+    - name: Set user permissions for ~/.cache for building images
+      shell: sudo chown -R $USER ~/.cache || true

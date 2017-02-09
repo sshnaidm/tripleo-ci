@@ -4,6 +4,8 @@ non_root_user: jenkins
 enable_vbmc: false
 gating_repo_enabled: true
 
+undercloud_hieradata_override_file: "{{ tripleo_root }}/tripleo-ci/scripts/quickstart/quickstart-hieradata-overrides.yaml.j2"
+
 run_tempest: false
 ssl_overcloud: false
 

@@ -2,14 +2,33 @@
 - name: Add the undercloud node to the generated inventory
   hosts: localhost
   gather_facts: yes
-  tags:
-    - undercloud-scripts
   roles:
     - tripleo-inventory
+  tags:
+    - undercloud-scripts
 
-- include: tripleo-ci-setup-playbook.yml
-# TODO(sshnaidm): to create a separate role for this in quickstart-extras
-- include: build-install-playbook.yml
+- include: prepare_slave.yml
+  tags:
+    - local
+
+- name: Install repositories
+  hosts: undercloud
+  vars:
+  roles:
+    - repo-setup
+  tags:
+    - repos
+
+- name: Run DLRN gate role and install repo
+  hosts: undercloud
+  vars:
+    artg_compressed_gating_repo: "${HOME}/gating_repo.tar.gz"
+    artg_repos_dir: "{{ tripleo_root}}"
+  roles:
+    - build-test-packages
+    - install-built-packages
+  tags:
+    - build
 
 # Deploy the undercloud
 - name:  Install undercloud
@@ -17,14 +36,28 @@
   gather_facts: no
   roles:
     - undercloud-deploy
-
-- include: post-undercloud-playbook.yml
   tags:
-    - post-undercloud
+    - undercloud-deploy
 
-- include: get_images-playbook.yml
+- name: Get images for quickstart
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - { role: fetch-images, when: release == 'master' and not lookup('env', 'BUILD_IMAGES')|bool }
+    - { role: build-images, when: release != 'master' or lookup('env', 'BUILD_IMAGES')|bool }
   tags:
-    - image-build
+    - get-images
+    - images
+
+- name: Prepare images for quickstart
+  hosts: undercloud
+  gather_facts: no
+  roles:
+    - repo-setup
+    - install-built-packages
+  tags:
+    - prepare-images
+    - images
 
 - name:  Prepare configuration files for the overcloud deployment
   hosts: undercloud
