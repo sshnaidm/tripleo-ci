@@ -1,29 +1,44 @@
 multinode_mode: false
 undercloud_user: jenkins
 non_root_user: jenkins
+ssh_user: jenkins
 enable_vbmc: false
 gating_repo_enabled: true
 
 undercloud_hieradata_override_file: "{{ tripleo_root }}/tripleo-ci/scripts/quickstart/quickstart-hieradata-overrides.yaml.j2"
 
-run_tempest: false
+run_tempest: true
+tempest_config: true
+test_regex: '.*smoke'
 ssl_overcloud: false
 
 step_adjust_mtu: true
 mtu: 1350
 
+# Overcloud deploy
+overcloud_templates_path: /usr/share/openstack-tripleo-heat-templates
+
 external_interface: eth2
 external_interface_ip: 10.0.0.1
 external_interface_netmask: 255.255.255.0
 external_interface_hwaddr: fa:16:3e:79:e8:04
+overcloud_dns_servers:
+  - 10.1.8.10
+  - 8.8.8.8
+  - 8.8.4.4
 
 # Running quickstart as tripleo-ci exactly
 step_introspect: "{{ lookup('env','INTROSPECT')|bool }}"
 undercloud_generate_service_certificate: "{{ lookup('env','UNDERCLOUD_SSL')|bool }}"
 #overcloud_nodes:
 enable_pacemaker: "{{ lookup('env','PACEMAKER')|bool }}"
-deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
+# deploy_args: "{{ lookup('env','OVERCLOUD_DEPLOY_ARGS') }}"
 network_isolation: "{{ lookup('env','NETISO_V4')|bool }}"
+network_isolation_type: "multi-nic"
+network_isolation_args: >-
+  -e {{ overcloud_templates_path }}/environments/network-isolation.yaml
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/network-templates/network-environment.yaml
+  -e {{ tripleo_root }}/tripleo-ci/test-environments/net-iso.yaml
 
 float_base: "{% if network_isolation|bool %}10.0.0{% else %}192.168.24{% endif %}"
 floating_ip_cidr: "{{ float_base}}.0/24"
@@ -32,8 +47,8 @@ public_net_pool_end: "{{ float_base}}.250"
 public_net_gateway: "{{ float_base}}.1"
 
 # Running quickstart with its own config
-network_isolation_type: network-isolation
 deploy_timeout: 110
+flavor_args: ""
 
 regular_interfaces:
   - eth0
@@ -44,22 +59,26 @@ mtu_interface: "{% if network_isolation|bool %}{{ regular_interfaces + netiso_in
     {% else %}{{ regular_interfaces }}
     {% endif %}"
 
-# Overcloud deploy
-overcloud_templates_path: /usr/share/openstack-tripleo-heat-templates
+# General settings
+must_build_projects:
+
 
 # Collect logs settings
 
+# TODO(sshnaidm): artcl_tar_gz should be tested before
+# artcl_tar_gz: true
 artcl_gzip_only: true
 artcl_txt_rename: true
 artcl_publish: true
 artcl_rsync_logs: false
 artcl_collect_list:
+  - /etc/
   - /var/log/
-  - /var/lib/mysql
   - /home/jenkins/.instack/install-undercloud.log
   - /home/jenkins/stackrc
   - /home/jenkins/overcloudrc
   - /home/jenkins/*.log
+  - /home/jenkins/*.txt
   - /home/jenkins/*.json
   - /home/jenkins/*.conf
   - /home/jenkins/*.yml
@@ -76,43 +95,11 @@ artcl_collect_list:
   - /usr/share/openstack-tripleo-heat-templates
   - /tmp/*.yml
   - /tmp/*.yaml
-  - /etc/aodh
-  - /etc/ceilometer
-  - /etc/cinder
-  - /etc/dnsmasq-ironic.conf
-  - /etc/docker-registry.yml
-  - /etc/glance
-  - /etc/gnocchi
-  - /etc/heat
-  - /etc/haproxy
-  - /etc/httpd
-  - /etc/ironic
-  - /etc/ironic-inspector
-  - /etc/keepalived
-  - /etc/keystone
-  - /etc/libvirt
-  - /etc/manila
-  - /etc/mistral
-  - /etc/mongod.conf
-  - /etc/mongos.conf
-  - /etc/neutron
-  - /etc/nova
-  - /etc/ntp
-  - /etc/ntp.conf
-  - /etc/os-collect-config.conf
-  - /etc/os-net-config
-  - /etc/puppet
-  - /etc/qpid
-  - /etc/qpidd.conf
-  - /etc/rabbitmq
-  - /etc/redis
-  - /etc/redis.conf*
-  - /etc/resolv.conf
-  - /etc/sahara
-  - /etc/selinux
-  - /etc/swift
-  - /etc/sysconfig
-  - /etc/systemd
-  - /etc/trove
-  - /etc/yum.repos.d
-  - /etc/zaqar
+artcl_exclude_list:
+  - /etc/udev/hwdb.bin
+  - /etc/puppet/modules
+  - /etc/project-config
+  - /etc/services
+  - /etc/selinux/targeted
+  - /etc/pki/ca-trust/extracted
+  - /etc/alternatives
