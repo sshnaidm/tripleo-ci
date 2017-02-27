@@ -43,7 +43,7 @@
   hosts: undercloud
   gather_facts: no
   roles:
-    - { role: fetch-images, when: release == 'master' and not lookup('env', 'BUILD_IMAGES')|bool }
+    - fetch-images
     - { role: build-images, when: release != 'master' or lookup('env', 'BUILD_IMAGES')|bool }
   tags:
     - get-images

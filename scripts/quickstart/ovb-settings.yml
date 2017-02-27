@@ -61,7 +61,12 @@ mtu_interface: "{% if network_isolation|bool %}{{ regular_interfaces + netiso_in
 
 # General settings
 must_build_projects:
-
+  - diskimage-builder
+  - tripleo-image-elements
+  - tripleo-puppet-elements
+  - instack-undercloud
+  - python-tripleoclient
+  - tripleo-common
 
 # Collect logs settings
 
