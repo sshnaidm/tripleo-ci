@@ -212,6 +212,12 @@ for JOB_TYPE_PART in $(sed 's/-/ /g' <<< "${TOCI_JOBTYPE:-}") ; do
     esac
 done
 
+declare -A PLAYBOOKS_ARGS=(
+    ["baremetal-full-overcloud.yml"]=" --extra-vars validation_args='--validation-errors-nonfatal' "
+    ["multinode-undercloud-upgrade.yml"]=" --extra-vars @$LOCAL_WORKING_DIR/config/release/tripleo-ci/${UPGRADE_RELEASE:-$QUICKSTART_RELEASE}.yml"
+    ["multinode-overcloud.yml"]=" --extra-vars validation_args='--validation-errors-nonfatal' "
+    ["multinode.yml"]=" --extra-vars validation_args='--validation-errors-nonfatal' "
+)
 
 if [[ ! -z $NODES_FILE ]]; then
     pushd $TRIPLEO_ROOT/tripleo-quickstart
@@ -314,6 +320,12 @@ else
     # finally, run quickstart
     ./toci_quickstart.sh
 fi
+# for continue development of investigation, return to final state of toci_quickstart
+loadvars
+set +u
+source $LOCAL_WORKING_DIR/bin/activate
+set -u
+cd $TRIPLEO_ROOT/tripleo-quickstart/
 
 echo "Run completed"
 echo "tripleo.${STABLE_RELEASE:-master}.${TOCI_JOBTYPE}.logs.size_mb" "$(du -sm $WORKSPACE/logs | awk {'print $1'})" "$(date +%s)" | nc 66.187.229.172 2003 || true

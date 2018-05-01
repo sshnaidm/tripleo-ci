@@ -64,13 +64,6 @@ QUICKSTART_COLLECTLOGS_CMD="$LOCAL_WORKING_DIR/bin/ansible-playbook \
     --skip-tags teardown-all \
 "
 
-declare -A PLAYBOOKS_ARGS=(
-    ["baremetal-full-overcloud.yml"]=" --extra-vars validation_args='--validation-errors-nonfatal' "
-    ["multinode-undercloud-upgrade.yml"]=" --extra-vars @$LOCAL_WORKING_DIR/config/release/tripleo-ci/${UPGRADE_RELEASE:-$QUICKSTART_RELEASE}.yml"
-    ["multinode-overcloud.yml"]=" --extra-vars validation_args='--validation-errors-nonfatal' "
-    ["multinode.yml"]=" --extra-vars validation_args='--validation-errors-nonfatal' "
-)
-
 mkdir -p $LOCAL_WORKING_DIR
 # TODO(gcerami) parametrize hosts
 cp $TRIPLEO_ROOT/tripleo-ci/toci-quickstart/config/testenv/${ENVIRONMENT}_hosts $LOCAL_WORKING_DIR/hosts
@@ -92,7 +85,7 @@ source $LOCAL_WORKING_DIR/bin/activate
 set -u
 source $OOOQ_DIR/ansible_ssh_env.sh
 [[ -n ${STATS_OOOQ:-''} ]] && export STATS_OOOQ=$(( $(date +%s) - STATS_OOOQ ))
-
+dumpvars
 
 for playbook in $PLAYBOOKS; do
     run_with_timeout $START_JOB_TIME $QUICKSTART_INSTALL_CMD \

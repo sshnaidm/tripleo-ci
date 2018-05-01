@@ -88,3 +88,49 @@ function run_with_timeout {
     /usr/bin/timeout --preserve-status ${TIME_FOR_COMMAND}m ${COMMAND}
 }
 
+function generate_playbook_command {
+    local playbook=$1
+
+    echo "$QUICKSTART_INSTALL_CMD \
+        --extra-vars ci_job_end_time=$(( START_JOB_TIME + REMAINING_TIME*60 )) \
+        $LOCAL_WORKING_DIR/playbooks/$playbook \"${PLAYBOOKS_ARGS[$playbook]:-}\" \
+        2>&1 | tee -a $LOGS_DIR/quickstart_install.log && exit_value=0 || exit_value=$?"
+}
+
+function dumpvars {
+set +u
+cat<<EOF > ~/oooq_internal_vars.sh
+export ANSIBLE_CONFIG="${ANSIBLE_CONFIG}"
+export ANSIBLE_SSH_ARGS="${ANSIBLE_SSH_ARGS}"
+export ARA_DATABASE="${ARA_DATABASE}"
+export DEFAULT_ARGS="${DEFAULT_ARGS}"
+export DEVSTACK_GATE_TIMEOUT="${DEVSTACK_GATE_TIMEOUT}"
+export LOCAL_WORKING_DIR="${LOCAL_WORKING_DIR}"
+export LOGS_DIR="${LOGS_DIR}"
+export NODEPOOL_PROVIDER="${NODEPOOL_PROVIDER}"
+export NODES_FILE="${NODES_FILE}"
+export OOOQ_DIR="${OOOQ_DIR}"
+export OPT_WORKDIR="${OPT_WORKDIR}"
+export QUICKSTART_COLLECTLOGS_CMD="${QUICKSTART_COLLECTLOGS_CMD}"
+export QUICKSTART_INSTALL_CMD="${QUICKSTART_INSTALL_CMD}"
+export QUICKSTART_RELEASE="${QUICKSTART_RELEASE}"
+export QUICKSTART_VENV_CMD="${QUICKSTART_VENV_CMD}"
+export REMAINING_TIME="${REMAINING_TIME}"
+export SSH_CONFIG="${SSH_CONFIG}"
+export STABLE_RELEASE="${STABLE_RELEASE}"
+export START_JOB_TIME="${START_JOB_TIME}"
+export STATS_OOOQ="${STATS_OOOQ}"
+export STATS_TESTENV="${STATS_TESTENV}"
+export TOCI_JOBTYPE="${TOCI_JOBTYPE}"
+export VIRTUAL_ENV_DISABLE_PROMPT="${VIRTUAL_ENV_DISABLE_PROMPT}"
+export WORKING_DIR="${WORKING_DIR}"
+export ZUUL_CHANGES="${ZUUL_CHANGES}"
+export ZUUL_PIPELINE="${ZUUL_PIPELINE}"
+EOF
+set -u
+cat ~/oooq_internal_vars.sh
+}
+
+function loadvars {
+    source ~/oooq_internal_vars.sh || echo "Can not load variables from ~/oooq_internal_vars.sh"
+}
